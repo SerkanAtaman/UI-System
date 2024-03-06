@@ -1,0 +1,17 @@
+{
+    "name": "com.serojob.uisystem.runtime",
+    "rootNamespace": "",
+    "references": [
+        "BrunoMikoski.AnimationSequencer",
+        "NaughtyAttributes.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
