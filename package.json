@@ -1,0 +1,17 @@
+{
+  "name": "com.serojob.uisystem",
+  "version": "1.0.0",
+  "displayName": "UI System",
+  "description": "A flow base ui system that controls ui windows",
+  "unity": "2021.3",
+  "unityRelease": "0b5",
+  "dependencies": {
+    "com.dbrizov.naughtyattributes" : "https://github.com/dbrizov/NaughtyAttributes.git#upm",
+    "com.brunomikoski.animationsequencer": "git@github.com:brunomikoski/Animation-Sequencer.git"
+  },
+  "author": {
+    "name": "Serkan Ataman",
+    "email": "serkanataman66@gmail.com",
+    "url": "https://github.com/SerkanAtaman"
+  }
+}
