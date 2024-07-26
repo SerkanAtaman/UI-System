@@ -1,12 +1,14 @@
 {
   "name": "com.serojob.uisystem",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "displayName": "UI System",
   "description": "A flow base ui system that controls ui windows",
   "unity": "2021.3",
   "unityRelease": "0b5",
   "dependencies": {
-    "com.dbrizov.naughtyattributes" : "https://github.com/dbrizov/NaughtyAttributes.git#upm",
+    "com.dbrizov.naughtyattributes": "https://github.com/dbrizov/NaughtyAttributes.git#upm",
+    "com.serojob.broadcasting": "https://github.com/SerkanAtaman/Broadcasting-System.git",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.brunomikoski.animationsequencer": "git@github.com:brunomikoski/Animation-Sequencer.git"
   },
   "author": {

@@ -1,5 +1,6 @@
 using NaughtyAttributes;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace SeroJob.UiSystem
@@ -137,9 +138,12 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            void onProccessWorked(UIProccess sender)
+            async void onProccessWorked(UIProccess sender)
             {
                 sender.OnWorkCompleted.RemoveListener(onProccessWorked);
+
+                await UniTask.DelayFrame(2);
+
                 WorkOnCommandQueue();
             }
 

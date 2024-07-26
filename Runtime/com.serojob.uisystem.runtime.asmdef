@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "BrunoMikoski.AnimationSequencer",
-        "NaughtyAttributes.Core"
+        "NaughtyAttributes.Core",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
