@@ -19,6 +19,7 @@ namespace SeroJob.UiSystem
 
         public string[] Command => new string[] { "OpenWindow", "CloseWindow" };
 
+        [Button()]
         public void GiveCommand()
         {
             _flowDatabase.OnCommandGiven.Invoke(_command);
