@@ -1,7 +1,6 @@
 using NaughtyAttributes;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace SeroJob.UiSystem
 {
@@ -33,6 +32,8 @@ namespace SeroJob.UiSystem
                 }
             }
         }
+
+        private readonly Queue<UICommand> _commandQueue = new();
 
         protected virtual void Awake()
         {
@@ -118,6 +119,34 @@ namespace SeroJob.UiSystem
             GiveCommand(new CloseWindowsCommand(new UIWindow[] { window }, closeImidiate, isTrackable));
         }
 
+        private void WorkOnCommandQueue()
+        {
+            if(_commandQueue.Count == 0)
+            {
+                _isBusy = false;
+                InputReceivable = true;
+                return;
+            }
+
+            var command = _commandQueue.Dequeue();
+            var process = command.GetProccess(this);
+
+            if(process == null)
+            {
+                WorkOnCommandQueue();
+                return;
+            }
+
+            void onProccessWorked(UIProccess sender)
+            {
+                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
+                WorkOnCommandQueue();
+            }
+
+            process.OnWorkCompleted.AddListener(onProccessWorked);
+            process.Work();
+        }
+
         public void GoBack()
         {
             if (_isBusy) return;
@@ -129,29 +158,17 @@ namespace SeroJob.UiSystem
 
         public void GiveCommand(UICommand command, bool trackable = true)
         {
-            if(_isBusy) return;
+            if (_isBusy)
+            {
+                _commandQueue.Enqueue(command);
+                return;
+            }
 
             _isBusy = true;
             InputReceivable = false;
 
-            var process = command.GetProccess(this);
-
-            if (process == null)
-            {
-                _isBusy = false;
-                InputReceivable = true;
-                return;
-            }
-
-            void onProccessWorked(UIProccess sender)
-            {
-                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
-                _isBusy = false;
-                InputReceivable = true;
-            }
-
-            process.OnWorkCompleted.AddListener(onProccessWorked);
-            process.Work();
+            _commandQueue.Enqueue(command);
+            WorkOnCommandQueue();
         }
 
         public FlowDatabase GetFlowDatabase()
