@@ -15,6 +15,7 @@ namespace SeroJob.UiSystem
         
         public CloseWindowsCommand(UIWindow[] windows, bool closeImmediately = false, bool solveConflictsAfterOpen = false)
         {
+            queueCommand = true;
             _closeImmediately = closeImmediately;
 
             _windows = UIHelper.ConvertToWindowReferenceArray(windows);

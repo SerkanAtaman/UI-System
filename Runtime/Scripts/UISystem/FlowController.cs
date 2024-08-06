@@ -151,6 +151,14 @@ namespace SeroJob.UiSystem
             process.Work();
         }
 
+        private void WorkOnCommandWithoutQeuing(UICommand command)
+        {
+            var process = command.GetProccess(this);
+            if (process == null) return;
+
+            process.Work();
+        }
+
         public void GoBack()
         {
             if (_isBusy) return;
@@ -164,7 +172,15 @@ namespace SeroJob.UiSystem
         {
             if (_isBusy)
             {
-                _commandQueue.Enqueue(command);
+                if (!command.QueueCommand)
+                {
+                    WorkOnCommandWithoutQeuing(command);
+                }
+                else
+                {
+                    _commandQueue.Enqueue(command);
+                }
+                
                 return;
             }
 
