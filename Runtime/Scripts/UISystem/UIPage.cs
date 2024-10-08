@@ -97,6 +97,24 @@ namespace SeroJob.UiSystem
                 element.OpenImmediately();
             }
 
+            OnOpenedImmediately();
+            _onFinishedOpen?.Invoke();
+        }
+
+        public virtual void OpenImmediately()
+        {
+            _onStartedOpen?.Invoke();
+            pageState = UIPageState.Opened;
+
+            _openAnim.Play();
+            _openAnim.Complete(true);
+
+            foreach (var element in elements)
+            {
+                element.OpenImmediately();
+            }
+
+            OnOpenedImmediately();
             _onFinishedOpen?.Invoke();
         }
 
@@ -113,6 +131,24 @@ namespace SeroJob.UiSystem
                 element.HideImmediately();
             }
 
+            OnHiddenImmediately();
+            _onFinishedClose?.Invoke();
+        }
+
+        public virtual void HideImmediately()
+        {
+            _onStartedClose?.Invoke();
+            pageState = UIPageState.Closed;
+
+            _closeAnim.Play();
+            _closeAnim.Complete(true);
+
+            foreach (var element in elements)
+            {
+                element.HideImmediately();
+            }
+
+            OnHiddenImmediately();
             _onFinishedClose?.Invoke();
         }
 
@@ -151,11 +187,6 @@ namespace SeroJob.UiSystem
 
             foreach (var element in elements)
             {
-                //if (element.CloseBehaviour == UIElementCloseBehaviour.Manuel)
-                //    _remainingElementsToAnimate--;
-                //else
-                //    element.OnClosed.AddListener(OnElementClosed);
-
                 element.OnClosed.AddListener(OnElementClosed);
                 element.PageStartedClosing();
             }
@@ -174,6 +205,9 @@ namespace SeroJob.UiSystem
 
             _onFinishedClose?.Invoke();
         }
+
+        protected virtual void OnOpenedImmediately() { }
+        protected virtual void OnHiddenImmediately() { }
 
         protected void SetPageState(UIPageState state)
         {
