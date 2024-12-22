@@ -38,7 +38,7 @@ namespace SeroJob.UiSystem
 
         private readonly Queue<UICommand> _commandQueue = new();
 
-        protected virtual void Awake()
+        protected virtual void OnEnable()
         {
             UIProccessTracker.Reset();
 
@@ -47,18 +47,12 @@ namespace SeroJob.UiSystem
                 UIResourceHelper.Settings.ApplySettings();
                 UIResourceHelper.ReleaseSettings();
             }
-        }
 
-        protected virtual void OnEnable()
-        {
             UIData.OnWindowOpened.AddListener(OnWindowOpened);
             UIData.OnWindowClosed.AddListener(OnWindowClosed);
             UIData.RegisterFlowController(this);
             _flowDatabase.OnCommandGiven.AddListener(OnCommandGiven);
-        }
 
-        protected virtual void Start()
-        {
             _openedWindows = new List<UIWindow>();
             SetWindowCollection();
 
