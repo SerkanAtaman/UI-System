@@ -100,7 +100,7 @@ namespace SeroJob.UiSystem
                 if (WindowRefArrayContains(_initialWindows, window))
                 {
                     if (window.State == UIWindowState.Opened) _openedWindows.Add(window);
-                    OpenWindow(window, true, false);
+                    else OpenWindow(window, true, false);
                 }
             }
         }
