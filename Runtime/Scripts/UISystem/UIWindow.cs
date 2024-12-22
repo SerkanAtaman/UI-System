@@ -346,6 +346,15 @@ namespace SeroJob.UiSystem
         private void HideFromEditor()
         {
             _canvas = GetComponent<Canvas>();
+
+            if (!Application.isPlaying)
+            {
+                gameObject.SetActive(false);
+                _canvas.enabled = false;
+                windowState = UIWindowState.Closed;
+                return;
+            }
+
             HideImmediately();
         }
 
@@ -353,6 +362,15 @@ namespace SeroJob.UiSystem
         private void OpenFromEditor()
         {
             _canvas = GetComponent<Canvas>();
+
+            if (!Application.isPlaying)
+            {
+                gameObject.SetActive(true);
+                _canvas.enabled = true;
+                windowState = UIWindowState.Opened;
+                return;
+            }
+
             OpenImmediately();
         }
 
