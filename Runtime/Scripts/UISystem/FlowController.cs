@@ -1,6 +1,5 @@
 using NaughtyAttributes;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace SeroJob.UiSystem
@@ -136,12 +135,9 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            async void onProccessWorked(UIProccess sender)
+            void onProccessWorked(UIProccess sender)
             {
                 sender.OnWorkCompleted.RemoveListener(onProccessWorked);
-
-                await UniTask.DelayFrame(2);
-
                 WorkOnCommandQueue();
             }
 
@@ -268,6 +264,8 @@ namespace SeroJob.UiSystem
                 return;
             }
 
+            if (_flowDatabase.GetRawWindowIds().Length == _windows.Length) return;
+
             string[] windowIDs = new string[_windows.Length];
 
             for (int i = 0; i < windowIDs.Length; i++)
@@ -276,8 +274,11 @@ namespace SeroJob.UiSystem
             }
 
             _flowDatabase.WindowIDs = windowIDs;
-            UnityEditor.EditorUtility.SetDirty(_flowDatabase);
-            UnityEditor.AssetDatabase.SaveAssetIfDirty(_flowDatabase);
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                UnityEditor.EditorUtility.SetDirty(_flowDatabase);
+                UnityEditor.AssetDatabase.SaveAssetIfDirty(_flowDatabase);
+            };
         }
 
 #endif

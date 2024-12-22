@@ -27,5 +27,10 @@ namespace SeroJob.UiSystem
         {
             OnCommandGiven = new();
         }
+
+        public string[] GetRawWindowIds()
+        {
+            return _windowIDs;
+        }
     }
 }
