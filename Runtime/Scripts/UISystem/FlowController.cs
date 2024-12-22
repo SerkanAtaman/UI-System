@@ -7,6 +7,7 @@ namespace SeroJob.UiSystem
 {
     public class FlowController : MonoBehaviour, IFlowProvider
     {
+        [SerializeField] private string _flowName;
         [SerializeField] private FlowDatabase _flowDatabase;
 
         [SerializeField] private UIWindow[] _windows;
@@ -22,6 +23,7 @@ namespace SeroJob.UiSystem
         public Dictionary<string, UIWindow> WindowsCollection { get; private set; }
         public List<UIWindow> OpenedWindows => _openedWindows;
         public bool IsBusy => _isBusy;
+        public string FlowName => _flowName;
 
         private bool InputReceivable
         {
@@ -51,6 +53,7 @@ namespace SeroJob.UiSystem
         {
             UIData.OnWindowOpened.AddListener(OnWindowOpened);
             UIData.OnWindowClosed.AddListener(OnWindowClosed);
+            UIData.RegisterFlowController(this);
             _flowDatabase.OnCommandGiven.AddListener(OnCommandGiven);
         }
 
@@ -68,6 +71,7 @@ namespace SeroJob.UiSystem
         {
             UIData.OnWindowOpened.RemoveListener(OnWindowOpened);
             UIData.OnWindowClosed.RemoveListener(OnWindowClosed);
+            UIData.UnregisterFlowController(this);
             _flowDatabase.OnCommandGiven.RemoveListener(OnCommandGiven);
         }
 
@@ -196,6 +200,28 @@ namespace SeroJob.UiSystem
             return _flowDatabase;
         }
 
+        public UIWindow GetWindowByID(string id)
+        {
+            try
+            {
+                return WindowsCollection[id];
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public T GetWindowByType<T>() where T : UIWindow
+        {
+            foreach (var window in _windows)
+            {
+                if (window.GetType() == typeof(T)) return (T)window;
+            }
+
+            return null;
+        }
+
         #region Events
 
         protected virtual void OnWindowOpened(UIWindow window)
@@ -256,6 +282,8 @@ namespace SeroJob.UiSystem
             }
 
             _flowDatabase.WindowIDs = windowIDs;
+            UnityEditor.EditorUtility.SetDirty(_flowDatabase);
+            UnityEditor.AssetDatabase.SaveAssetIfDirty(_flowDatabase);
         }
 
 #endif
