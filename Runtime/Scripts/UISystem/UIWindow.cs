@@ -24,9 +24,16 @@ namespace SeroJob.UiSystem
         
         public GraphicRaycaster GraphicRaycaster { get; private set; }
 
-        public Canvas Canvas => _canvas;
+        public Canvas Canvas
+        {
+            get
+            {
+                if (_canvas == null) _canvas = GetComponent<Canvas>();
+                return _canvas;
+            }
+        }
 
-        public int SortingOrder => _canvas.sortingOrder;
+        public int SortingOrder => Canvas.sortingOrder;
 
         public string[] CooperatedWindows
         {
@@ -63,7 +70,6 @@ namespace SeroJob.UiSystem
         {
             GraphicRaycaster = null;
             windowState = UIWindowState.Opened;
-            _canvas = GetComponent<Canvas>();
             if (transform.TryGetComponent(out GraphicRaycaster raycaster))
                 GraphicRaycaster = raycaster;
         }
@@ -77,7 +83,7 @@ namespace SeroJob.UiSystem
             if (State != UIWindowState.Closed) return;
             
             gameObject.SetActive(true);
-            _canvas.enabled = true;
+            Canvas.enabled = true;
 
             windowState = UIWindowState.Opening;
 
@@ -98,7 +104,7 @@ namespace SeroJob.UiSystem
             if (State != UIWindowState.Closed) return;
 
             gameObject.SetActive(true);
-            _canvas.enabled = true;
+            Canvas.enabled = true;
 
             windowState = UIWindowState.Opening;
 
@@ -155,7 +161,7 @@ namespace SeroJob.UiSystem
             windowState = UIWindowState.Opening;
             
             gameObject.SetActive(true);
-            _canvas.enabled = true;
+            Canvas.enabled = true;
 
             _remainingPagesToAnimate = pages.Length;
             _onWindowAnimatedCallback = null;
@@ -189,7 +195,7 @@ namespace SeroJob.UiSystem
 
         public void SetSortingOrder(int order)
         {
-            _canvas.sortingOrder = order;
+            Canvas.sortingOrder = order;
         }
 
         public FlowDatabase GetFlowDatabase()
@@ -252,7 +258,7 @@ namespace SeroJob.UiSystem
                 WindowCloseEnded();
                 
                 gameObject.SetActive(false);
-                _canvas.enabled = false;
+                Canvas.enabled = false;
 
                 _onWindowAnimatedCallback?.Invoke();
                 _onWindowAnimatedCallback = null;
@@ -273,7 +279,7 @@ namespace SeroJob.UiSystem
                     WindowCloseEnded();
                     
                     gameObject.SetActive(false);
-                    _canvas.enabled = false;
+                    Canvas.enabled = false;
 
                     _onWindowAnimatedCallback?.Invoke();
                     _onWindowAnimatedCallback = null;
@@ -345,12 +351,10 @@ namespace SeroJob.UiSystem
         [ContextMenu("Close")]
         private void HideFromEditor()
         {
-            _canvas = GetComponent<Canvas>();
-
             if (!Application.isPlaying)
             {
                 gameObject.SetActive(false);
-                _canvas.enabled = false;
+                Canvas.enabled = false;
                 windowState = UIWindowState.Closed;
                 return;
             }
@@ -361,12 +365,10 @@ namespace SeroJob.UiSystem
         [ContextMenu("Open")]
         private void OpenFromEditor()
         {
-            _canvas = GetComponent<Canvas>();
-
             if (!Application.isPlaying)
             {
                 gameObject.SetActive(true);
-                _canvas.enabled = true;
+                Canvas.enabled = true;
                 windowState = UIWindowState.Opened;
                 return;
             }
