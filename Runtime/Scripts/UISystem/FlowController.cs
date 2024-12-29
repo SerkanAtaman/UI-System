@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -131,6 +132,7 @@ namespace SeroJob.UiSystem
 
             if(process == null)
             {
+                command.Dispose();
                 WorkOnCommandQueue();
                 return;
             }
@@ -138,6 +140,8 @@ namespace SeroJob.UiSystem
             void onProccessWorked(UIProccess sender)
             {
                 sender.OnWorkCompleted.RemoveListener(onProccessWorked);
+                command.OnCompleted?.Invoke();
+                command.Dispose();
                 WorkOnCommandQueue();
             }
 
@@ -150,6 +154,14 @@ namespace SeroJob.UiSystem
             var process = command.GetProccess(this);
             if (process == null) return;
 
+            void onProccessWorked(UIProccess sender)
+            {
+                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
+                command.OnCompleted?.Invoke();
+                command.Dispose();
+            }
+
+            process.OnWorkCompleted.AddListener(onProccessWorked);
             process.Work();
         }
 
@@ -160,6 +172,40 @@ namespace SeroJob.UiSystem
             _isBusy = true;
 
             UIProccessTracker.Reverse(() => _isBusy = false);
+        }
+
+        public void OpenWindow(string windowID, Action callback = null, bool openImmediate = false, bool solveConflictsAfterOpen = false, bool solveConflictsImmediately = false, bool waitForConflicts = true)
+        {
+            try
+            {
+                var window = WindowsCollection[windowID];
+                var command = new OpenWindowsCommand(new UIWindow[] { window }, openImmediate, solveConflictsAfterOpen, solveConflictsImmediately, waitForConflicts)
+                {
+                    OnCompleted = callback
+                };
+                GiveCommand(command);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        public void CloseWindow(string windowID, Action callback = null, bool closeImmediate = false, bool solveConflictsAfterClose = false)
+        {
+            try
+            {
+                var window = WindowsCollection[windowID];
+                var command = new CloseWindowsCommand(new UIWindow[] { window }, closeImmediate, solveConflictsAfterClose)
+                {
+                    OnCompleted = callback
+                };
+                GiveCommand(command);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         public void GiveCommand(UICommand command, bool trackable = true)
