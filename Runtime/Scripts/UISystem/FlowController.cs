@@ -103,8 +103,6 @@ namespace SeroJob.UiSystem
         {
             if (window.State != UIWindowState.Closed) return;
 
-            UIDebugger.LogMessage(UIDebugConstants.OPENING_WINDOW + $" => {window.name}");
-
             GiveCommand(new OpenWindowsCommand(new UIWindow[] { window }, openImidiate, isTrackable));
         }
 
@@ -112,8 +110,6 @@ namespace SeroJob.UiSystem
         private void CloseWindow(UIWindow window, bool closeImidiate = false, bool isTrackable = true)
         {
             if (window.State != UIWindowState.Opened) return;
-
-            UIDebugger.LogMessage(UIDebugConstants.CLOSING_WINDOW);
 
             GiveCommand(new CloseWindowsCommand(new UIWindow[] { window }, closeImidiate, isTrackable));
         }

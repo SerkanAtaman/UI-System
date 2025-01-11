@@ -21,17 +21,17 @@ namespace SeroJob.UiSystem
         {
             if(State != UIProccessState.Unworked)
             {
-                UIDebugger.LogWarning(UIDebugConstants.PROCCESS_NOT_WORKABLE, $" => {Description}");
+                UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_NOT_WORKABLE} => {Description} - {_window.ID}");
                 return;
             }
 
-            UIDebugger.LogMessage(UIDebugConstants.PROCCESS_WORK_STARTED, $" => {Description}");
+            UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_WORK_STARTED} => {Description} - {_window.ID}");
 
             State = UIProccessState.Working;
 
             if (_closeImmidiately)
             {
-                UIDebugger.LogMessage(UIDebugConstants.PROCCESS_WORK_COMPLETED_IMMEDIATE, $" => {Description}");
+                UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_WORK_COMPLETED_IMMEDIATE} => {Description} - {_window.ID}");
 
                 State = UIProccessState.Worked;
 
@@ -48,7 +48,7 @@ namespace SeroJob.UiSystem
         {
             if(State != UIProccessState.Worked)
             {
-                UIDebugger.LogWarning(UIDebugConstants.PROCCESS_NOT_REWORKABLE, $" => {Description}");
+                UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_NOT_REWORKABLE} => {Description} - {_window.ID}");
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace SeroJob.UiSystem
 
             if (_closeImmidiately)
             {
-                UIDebugger.LogMessage(UIDebugConstants.PROCCESS_REWORK_COMPLETED_IMMEDIATE, $" => {Description}");
+                UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_REWORK_COMPLETED_IMMEDIATE} => {Description} - {_window.ID}");
 
                 State = UIProccessState.Reworked;
 
@@ -80,7 +80,7 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            UIDebugger.LogMessage(UIDebugConstants.PROCCESS_WORK_COMPLETED, $" => {Description}");
+            UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_WORK_COMPLETED} => {Description} - {_window.ID}");
 
             State = UIProccessState.Worked;
 
@@ -97,7 +97,7 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            UIDebugger.LogMessage(UIDebugConstants.PROCCESS_REWORK_COMPLETED, $" => {Description}");
+            UIDebugger.LogMessage($"{UIDebugConstants.PROCCESS_REWORK_COMPLETED} => {Description} - {_window.ID}");
 
             State = UIProccessState.Reworked;
 
