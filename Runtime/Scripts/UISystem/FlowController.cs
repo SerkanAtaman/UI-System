@@ -18,13 +18,8 @@ namespace SeroJob.UiSystem
 
         [SerializeField][Foldout("Debug")] private List<UIWindow> _openedWindows;
 
-        [SerializeField][Foldout("Debug")] private bool _isBusy;
-        [SerializeField][Foldout("Debug")] private int _totalWindowProccessCount;
-        [SerializeField][Foldout("Debug")] private int _totalConflictProccessCount;
-
         public Dictionary<string, UIWindow> WindowsCollection { get; private set; }
         public List<UIWindow> OpenedWindows => _openedWindows;
-        public bool IsBusy => _isBusy;
         public string FlowName => _flowName;
 
         private bool InputReceivable
@@ -57,8 +52,6 @@ namespace SeroJob.UiSystem
 
             _openedWindows = new List<UIWindow>();
             SetWindowCollection();
-
-            _isBusy = false;
 
             if (_setInitialsOnEnable) OpenInitialWindows(true, true);
             if (_closeAllOnEnable) CloseAll(true);
@@ -132,8 +125,6 @@ namespace SeroJob.UiSystem
         {
             if(_commandQueue.Count == 0)
             {
-                _isBusy = false;
-                InputReceivable = true;
                 return;
             }
 
@@ -162,7 +153,11 @@ namespace SeroJob.UiSystem
         private void WorkOnCommandWithoutQeuing(UICommand command)
         {
             var process = command.GetProccess(this);
-            if (process == null) return;
+            if (process == null)
+            {
+                command.Dispose();
+                return;
+            }
 
             void onProccessWorked(UIProccess sender)
             {
@@ -173,15 +168,6 @@ namespace SeroJob.UiSystem
 
             process.OnWorkCompleted.AddListener(onProccessWorked);
             process.Work();
-        }
-
-        public void GoBack()
-        {
-            if (_isBusy) return;
-
-            _isBusy = true;
-
-            UIProccessTracker.Reverse(() => _isBusy = false);
         }
 
         public void OpenWindow(string windowID, Action callback = null, bool openImmediate = false, bool solveConflictsAfterOpen = false, bool solveConflictsImmediately = false, bool waitForConflicts = true)
@@ -220,25 +206,15 @@ namespace SeroJob.UiSystem
 
         public void GiveCommand(UICommand command, bool trackable = true)
         {
-            if (_isBusy)
+            if (!command.QueueCommand)
             {
-                if (!command.QueueCommand)
-                {
-                    WorkOnCommandWithoutQeuing(command);
-                }
-                else
-                {
-                    _commandQueue.Enqueue(command);
-                }
-                
-                return;
+                WorkOnCommandWithoutQeuing(command);
             }
-
-            _isBusy = true;
-            InputReceivable = false;
-
-            _commandQueue.Enqueue(command);
-            WorkOnCommandQueue();
+            else
+            {
+                _commandQueue.Enqueue(command);
+                WorkOnCommandQueue();
+            }
         }
 
         public FlowDatabase GetFlowDatabase()
