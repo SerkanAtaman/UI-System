@@ -238,7 +238,7 @@ namespace SeroJob.UiSystem
             if(_remainingPagesToAnimate == 0)
             {
                 windowState = UIWindowState.Opened;
-                
+                if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
                 WindowOpenEnded();
                 
                 _onWindowAnimatedCallback?.Invoke();
@@ -259,6 +259,7 @@ namespace SeroJob.UiSystem
                 
                 gameObject.SetActive(false);
                 Canvas.enabled = false;
+                if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
                 _onWindowAnimatedCallback?.Invoke();
                 _onWindowAnimatedCallback = null;
@@ -280,6 +281,7 @@ namespace SeroJob.UiSystem
                     
                     gameObject.SetActive(false);
                     Canvas.enabled = false;
+                    if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
                     _onWindowAnimatedCallback?.Invoke();
                     _onWindowAnimatedCallback = null;
@@ -297,7 +299,8 @@ namespace SeroJob.UiSystem
                 StartCoroutine(Delay(0.1f, () =>
                 {
                     windowState = UIWindowState.Opened;
-                    
+                    if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
+
                     WindowOpenEnded();
                     
                     _onWindowAnimatedCallback?.Invoke();

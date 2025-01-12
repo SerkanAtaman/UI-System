@@ -9,6 +9,8 @@ namespace SeroJob.UiSystem
     {
         [SerializeField] private string _flowName;
         [SerializeField] private FlowDatabase _flowDatabase;
+        [SerializeField] private bool _setInitialsOnEnable = true;
+        [SerializeField] private bool _closeAllOnEnable = false;
 
         [SerializeField] private UIWindow[] _windows;
 
@@ -58,8 +60,9 @@ namespace SeroJob.UiSystem
 
             _isBusy = false;
 
-            OpenInitialWindows(true);
-        }
+            if (_setInitialsOnEnable) OpenInitialWindows(true, true);
+            if (_closeAllOnEnable) CloseAll(true);
+        } 
 
         protected virtual void OnDisable()
         {
@@ -79,13 +82,16 @@ namespace SeroJob.UiSystem
             }
         }
 
-        public void OpenInitialWindows(bool openImmediately)
+        public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
         {
-            foreach (var window in _windows)
+            if (closeOthers)
             {
-                if (!WindowRefArrayContains(_initialWindows, window))
+                foreach (var window in _windows)
                 {
-                    CloseWindow(window, openImmediately, false);
+                    if (!WindowRefArrayContains(_initialWindows, window))
+                    {
+                        CloseWindow(window, openImmediately, false);
+                    }
                 }
             }
 
