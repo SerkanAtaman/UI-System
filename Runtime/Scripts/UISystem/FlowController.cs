@@ -58,7 +58,7 @@ namespace SeroJob.UiSystem
 
             _isBusy = false;
 
-            SetInitialWindows();
+            OpenInitialWindows(true);
         }
 
         protected virtual void OnDisable()
@@ -79,13 +79,13 @@ namespace SeroJob.UiSystem
             }
         }
 
-        private void SetInitialWindows()
+        public void OpenInitialWindows(bool openImmediately)
         {
             foreach (var window in _windows)
             {
                 if (!WindowRefArrayContains(_initialWindows, window))
                 {
-                    CloseWindow(window, true, false);
+                    CloseWindow(window, openImmediately, false);
                 }
             }
 
@@ -96,6 +96,14 @@ namespace SeroJob.UiSystem
                     if (window.State == UIWindowState.Opened) _openedWindows.Add(window);
                     else OpenWindow(window, true, false);
                 }
+            }
+        }
+
+        public void CloseAll(bool closeImmediately)
+        {
+            foreach (var window in _windows)
+            {
+                CloseWindow(window, closeImmediately, false);
             }
         }
 
