@@ -29,7 +29,6 @@ namespace SeroJob.UiSystem
             bool solveConflictsAfterOpen = false, bool solveConflictsImmediately = false,
             bool waitForConflicts = true)
         {
-            queueCommand = true;
             _solveConflictsAfterOpen = solveConflictsAfterOpen;
             _openImmediately = openImmediate;
             _waitForConflicts = waitForConflicts;

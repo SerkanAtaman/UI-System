@@ -33,8 +33,6 @@ namespace SeroJob.UiSystem
             }
         }
 
-        private readonly Queue<UICommand> _commandQueue = new();
-
         protected virtual void OnEnable()
         {
             UIProccessTracker.Reset();
@@ -121,55 +119,6 @@ namespace SeroJob.UiSystem
             GiveCommand(new CloseWindowsCommand(new UIWindow[] { window }, closeImidiate, isTrackable));
         }
 
-        private void WorkOnCommandQueue()
-        {
-            if(_commandQueue.Count == 0)
-            {
-                return;
-            }
-
-            var command = _commandQueue.Dequeue();
-            var process = command.GetProccess(this);
-
-            if(process == null)
-            {
-                command.Dispose();
-                WorkOnCommandQueue();
-                return;
-            }
-
-            void onProccessWorked(UIProccess sender)
-            {
-                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
-                command.OnCompleted?.Invoke();
-                command.Dispose();
-                WorkOnCommandQueue();
-            }
-
-            process.OnWorkCompleted.AddListener(onProccessWorked);
-            process.Work();
-        }
-
-        private void WorkOnCommandWithoutQeuing(UICommand command)
-        {
-            var process = command.GetProccess(this);
-            if (process == null)
-            {
-                command.Dispose();
-                return;
-            }
-
-            void onProccessWorked(UIProccess sender)
-            {
-                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
-                command.OnCompleted?.Invoke();
-                command.Dispose();
-            }
-
-            process.OnWorkCompleted.AddListener(onProccessWorked);
-            process.Work();
-        }
-
         public void OpenWindow(string windowID, Action callback = null, bool openImmediate = false, bool solveConflictsAfterOpen = false, bool solveConflictsImmediately = false, bool waitForConflicts = true)
         {
             try
@@ -206,15 +155,23 @@ namespace SeroJob.UiSystem
 
         public void GiveCommand(UICommand command, bool trackable = true)
         {
-            if (!command.QueueCommand)
+            if (command == null) return;
+            var process = command.GetProccess(this);
+            if (process == null)
             {
-                WorkOnCommandWithoutQeuing(command);
+                command.Dispose();
+                return;
             }
-            else
+
+            void onProccessWorked(UIProccess sender)
             {
-                _commandQueue.Enqueue(command);
-                WorkOnCommandQueue();
+                sender.OnWorkCompleted.RemoveListener(onProccessWorked);
+                command.OnCompleted?.Invoke();
+                command.Dispose();
             }
+
+            process.OnWorkCompleted.AddListener(onProccessWorked);
+            process.Work();
         }
 
         public FlowDatabase GetFlowDatabase()
