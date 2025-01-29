@@ -1,11 +1,11 @@
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SeroJob.UiSystem
 {
+    [DefaultExecutionOrder(-1)]
     public class FlowController : MonoBehaviour, IFlowProvider
     {
         [SerializeField] private string _flowName;
@@ -34,7 +34,7 @@ namespace SeroJob.UiSystem
             }
         }
 
-        protected virtual void OnEnable()
+        protected virtual void Awake()
         {
             UIProccessTracker.Reset();
 
@@ -44,19 +44,22 @@ namespace SeroJob.UiSystem
                 UIResourceHelper.ReleaseSettings();
             }
 
+            SetWindowCollection();
+        }
+
+        protected virtual void Start()
+        {
             UIData.OnWindowOpened.AddListener(OnWindowOpened);
             UIData.OnWindowClosed.AddListener(OnWindowClosed);
             UIData.RegisterFlowController(this);
             _flowDatabase.OnCommandGiven.AddListener(OnCommandGiven);
-
             _openedWindows = new List<UIWindow>();
-            SetWindowCollection();
 
             if (_setInitialsOnEnable) OpenInitialWindows(true, true);
             if (_closeAllOnEnable) CloseAll(true);
-        } 
+        }
 
-        protected virtual void OnDisable()
+        protected virtual void OnDestroy()
         {
             UIData.OnWindowOpened.RemoveListener(OnWindowOpened);
             UIData.OnWindowClosed.RemoveListener(OnWindowClosed);
