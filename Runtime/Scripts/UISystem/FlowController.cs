@@ -1,6 +1,7 @@
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SeroJob.UiSystem
@@ -90,8 +91,14 @@ namespace SeroJob.UiSystem
             {
                 if (WindowRefArrayContains(_initialWindows, window))
                 {
-                    if (window.State == UIWindowState.Opened) _openedWindows.Add(window);
-                    else OpenWindow(window, openImmediately, false);
+                    if (window.State == UIWindowState.Opened && !openImmediately)
+                    {
+                        if (!_openedWindows.Contains(window)) _openedWindows.Add(window);
+                    }
+                    else
+                    {
+                        OpenWindow(window, openImmediately, false);
+                    }
                 }
             }
         }
