@@ -90,27 +90,12 @@ namespace SeroJob.UiSystem
 
         public virtual void OpenImmediately(Action callback)
         {
+            _openAnim.Kill(false);
+            _closeAnim.Kill(false);
+
+            pageState = UIPageState.Opening;
             OnOpenStarted();
             _onStartedOpen?.Invoke();
-            pageState = UIPageState.Opened;
-
-            _openAnim.Play(callback);
-            _openAnim.Complete(true);
-
-            foreach (var element in elements)
-            {
-                element.OpenImmediately();
-            }
-
-            OnHideEnded();
-            _onFinishedOpen?.Invoke();
-        }
-
-        public virtual void OpenImmediately()
-        {
-            OnOpenStarted();
-            _onStartedOpen?.Invoke();
-            pageState = UIPageState.Opened;
 
             _openAnim.Play();
             _openAnim.Complete(true);
@@ -120,33 +105,42 @@ namespace SeroJob.UiSystem
                 element.OpenImmediately();
             }
 
+            pageState = UIPageState.Opened;
+            OnHideEnded();
+            _onFinishedOpen?.Invoke();
+            callback?.Invoke();
+        }
+
+        public virtual void OpenImmediately()
+        {
+            _openAnim.Kill(false);
+            _closeAnim.Kill(false);
+
+            pageState = UIPageState.Opening;
+            OnOpenStarted();
+            _onStartedOpen?.Invoke();
+
+            _openAnim.Play();
+            _openAnim.Complete(true);
+
+            foreach (var element in elements)
+            {
+                element.OpenImmediately();
+            }
+
+            pageState = UIPageState.Opened;
             OnHideEnded();
             _onFinishedOpen?.Invoke();
         }
 
         public virtual void HideImmediately(Action callback)
         {
+            _closeAnim.Kill(false);
+            _openAnim.Kill(false);
+
+            pageState = UIPageState.Closing;
             OnHideStarted();
             _onStartedClose?.Invoke();
-            pageState = UIPageState.Closed;
-
-            _closeAnim.Play(callback);
-            _closeAnim.Complete(true);
-
-            foreach (var element in elements)
-            {
-                element.HideImmediately();
-            }
-
-            OnHideEnded();
-            _onFinishedClose?.Invoke();
-        }
-
-        public virtual void HideImmediately()
-        {
-            OnHideStarted();
-            _onStartedClose?.Invoke();
-            pageState = UIPageState.Closed;
 
             _closeAnim.Play();
             _closeAnim.Complete(true);
@@ -156,6 +150,30 @@ namespace SeroJob.UiSystem
                 element.HideImmediately();
             }
 
+            pageState = UIPageState.Closed;
+            OnHideEnded();
+            _onFinishedClose?.Invoke();
+            callback?.Invoke();
+        }
+
+        public virtual void HideImmediately()
+        {
+            _closeAnim.Kill(false);
+            _openAnim.Kill(false);
+
+            pageState = UIPageState.Closing;
+            OnHideStarted();
+            _onStartedClose?.Invoke();
+
+            _closeAnim.Play();
+            _closeAnim.Complete(true);
+
+            foreach (var element in elements)
+            {
+                element.HideImmediately();
+            }
+
+            pageState = UIPageState.Closed;
             OnHideEnded();
             _onFinishedClose?.Invoke();
         }

@@ -29,16 +29,14 @@ namespace SeroJob.UiSystem
                 targetWindows[i] = flowController.WindowsCollection[_windows[i].WindowID];
             }
 
-            UIWindow[] closableWindows = UIHelper.GetClosableWindows(targetWindows);
-
-            if (closableWindows.IsNullOrEmpty())
+            if (targetWindows.IsNullOrEmpty())
             {
                 UIDebugger.LogWarning(UIDebugConstants.ARRAY_NULL_EMPTY, " => " + "windows to close");
                 return null;
             }
 
-            if(closableWindows.Length == 1) return GetSingleWindowProccess(closableWindows[0]);
-            else return GetMultipleWindowProccess(closableWindows);
+            if(targetWindows.Length == 1) return GetSingleWindowProccess(targetWindows[0]);
+            else return GetMultipleWindowProccess(targetWindows);
         }
 
         private UIProccess GetSingleWindowProccess(UIWindow window)

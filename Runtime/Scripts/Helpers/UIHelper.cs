@@ -65,30 +65,6 @@ namespace SeroJob.UiSystem
             return result;
         }
 
-        public static UIWindow[] GetOpenableWindows(UIWindow[] windows)
-        {
-            List<UIWindow> list = new List<UIWindow>();
-
-            foreach (UIWindow window in windows)
-            {
-                if (window.State == UIWindowState.Closed) list.Add(window);
-            }
-
-            return list.ToArray();
-        }
-
-        public static UIWindow[] GetClosableWindows(UIWindow[] windows)
-        {
-            List<UIWindow> list = new List<UIWindow>();
-
-            foreach (UIWindow window in windows)
-            {
-                if (window.State == UIWindowState.Opened) list.Add(window);
-            }
-
-            return list.ToArray();
-        }
-
         public static UIWindow FindWindowIn(UIWindow[] array, string id)
         {
             UIWindow result = null;

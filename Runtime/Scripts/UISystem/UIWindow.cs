@@ -273,20 +273,17 @@ namespace SeroJob.UiSystem
 
             if (_remainingPagesToAnimate == 0)
             {
-                StartCoroutine(Delay(0.1f, () =>
-                {
-                    windowState = UIWindowState.Closed;
-                    
-                    WindowCloseEnded();
-                    
-                    gameObject.SetActive(false);
-                    Canvas.enabled = false;
-                    if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
+                windowState = UIWindowState.Closed;
 
-                    _onWindowAnimatedCallback?.Invoke();
-                    _onWindowAnimatedCallback = null;
-                    _remainingPagesToAnimate = -99;
-                }));
+                WindowCloseEnded();
+
+                gameObject.SetActive(false);
+                Canvas.enabled = false;
+                if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
+
+                _onWindowAnimatedCallback?.Invoke();
+                _onWindowAnimatedCallback = null;
+                _remainingPagesToAnimate = -99;
             }
         }
 
@@ -296,29 +293,15 @@ namespace SeroJob.UiSystem
 
             if (_remainingPagesToAnimate == 0)
             {
-                StartCoroutine(Delay(0.1f, () =>
-                {
-                    windowState = UIWindowState.Opened;
-                    if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
+                windowState = UIWindowState.Opened;
+                if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
 
-                    WindowOpenEnded();
-                    
-                    _onWindowAnimatedCallback?.Invoke();
-                    _onWindowAnimatedCallback = null;
-                    _remainingPagesToAnimate = -99;
-                }));
+                WindowOpenEnded();
+
+                _onWindowAnimatedCallback?.Invoke();
+                _onWindowAnimatedCallback = null;
+                _remainingPagesToAnimate = -99;
             }
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        private IEnumerator Delay(float delay, Action callback)
-        {
-            yield return new WaitForSeconds(delay);
-
-            callback();
         }
 
         #endregion

@@ -46,22 +46,20 @@ namespace SeroJob.UiSystem
                 targetWindows[i] = flowController.WindowsCollection[_windows[i].WindowID];
             }
 
-            UIWindow[] openableWindows = UIHelper.GetOpenableWindows(targetWindows);
-
-            if (openableWindows.IsNullOrEmpty())
+            if (targetWindows.IsNullOrEmpty())
             {
                 UIDebugger.LogWarning(UIDebugConstants.ARRAY_NULL_EMPTY, " => " + "windows to open");
                 return null;
             }
 
-            if (UIHelper.DoesWindowsConflict(openableWindows))
+            if (UIHelper.DoesWindowsConflict(targetWindows))
             {
                 UIDebugger.LogError(UIDebugConstants.MULTIPLE_WINDOWS_CONFLICT, " : Openable Windows");
                 return null;
             }
 
-            if (openableWindows.Length == 1) return GetSingleWindowProccess(openableWindows[0], flowController);
-            else return GetMultipleWindowProccess(openableWindows, flowController);
+            if (targetWindows.Length == 1) return GetSingleWindowProccess(targetWindows[0], flowController);
+            else return GetMultipleWindowProccess(targetWindows, flowController);
         }
 
         private UIProccess GetSingleWindowProccess(UIWindow window, FlowController flowController)

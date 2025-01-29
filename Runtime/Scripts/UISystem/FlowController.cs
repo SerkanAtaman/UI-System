@@ -91,7 +91,7 @@ namespace SeroJob.UiSystem
                 if (WindowRefArrayContains(_initialWindows, window))
                 {
                     if (window.State == UIWindowState.Opened) _openedWindows.Add(window);
-                    else OpenWindow(window, true, false);
+                    else OpenWindow(window, openImmediately, false);
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace SeroJob.UiSystem
 
         private void OpenWindow(UIWindow window, bool openImidiate = false, bool isTrackable = true)
         {
-            if (window.State != UIWindowState.Closed) return;
+            if (window.State != UIWindowState.Closed && !openImidiate) return;
 
             GiveCommand(new OpenWindowsCommand(new UIWindow[] { window }, openImidiate, isTrackable));
         }
@@ -114,7 +114,7 @@ namespace SeroJob.UiSystem
 
         private void CloseWindow(UIWindow window, bool closeImidiate = false, bool isTrackable = true)
         {
-            if (window.State != UIWindowState.Opened) return;
+            if (window.State != UIWindowState.Opened && !closeImidiate) return;
 
             GiveCommand(new CloseWindowsCommand(new UIWindow[] { window }, closeImidiate, isTrackable));
         }
@@ -124,6 +124,7 @@ namespace SeroJob.UiSystem
             try
             {
                 var window = WindowsCollection[windowID];
+                if (window.State != UIWindowState.Closed && !openImmediate) return;
                 var command = new OpenWindowsCommand(new UIWindow[] { window }, openImmediate, solveConflictsAfterOpen, solveConflictsImmediately, waitForConflicts)
                 {
                     OnCompleted = callback
@@ -141,6 +142,7 @@ namespace SeroJob.UiSystem
             try
             {
                 var window = WindowsCollection[windowID];
+                if (window.State != UIWindowState.Opened && !closeImmediate) return;
                 var command = new CloseWindowsCommand(new UIWindow[] { window }, closeImmediate, solveConflictsAfterClose)
                 {
                     OnCompleted = callback
