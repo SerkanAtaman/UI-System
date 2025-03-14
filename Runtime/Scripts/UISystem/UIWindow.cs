@@ -2,11 +2,11 @@ using System;
 using UnityEngine;
 using NaughtyAttributes;
 using UnityEngine.UI;
-using System.Collections;
 
 namespace SeroJob.UiSystem
 {
     [RequireComponent(typeof(Canvas))]
+    [RequireComponent(typeof(CanvasGroup))]
     public class UIWindow : MonoBehaviour, IFlowProvider
     {
         [ReadOnly][SerializeField] protected UIWindowState windowState = UIWindowState.Opened;
@@ -32,6 +32,14 @@ namespace SeroJob.UiSystem
                 return _canvas;
             }
         }
+        public CanvasGroup CanvasGroup
+        {
+            get
+            {
+                if (_canvasGroup == null) _canvasGroup = GetComponent<CanvasGroup>();
+                return _canvasGroup;
+            }
+        }
 
         public int SortingOrder => Canvas.sortingOrder;
 
@@ -51,6 +59,17 @@ namespace SeroJob.UiSystem
                 return array;
             }
         }
+        public bool IsVisible
+        {
+            get
+            {
+                return CanvasGroup.alpha > 0.02f;
+            }
+            set
+            {
+                CanvasGroup.alpha = value ? 1f : 0f;
+            }
+        }
 
         #endregion
 
@@ -59,6 +78,7 @@ namespace SeroJob.UiSystem
         private int _remainingPagesToAnimate;
 
         private Canvas _canvas;
+        private CanvasGroup _canvasGroup;
 
         private Action _onWindowAnimatedCallback;
 

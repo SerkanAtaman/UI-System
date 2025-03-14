@@ -23,17 +23,6 @@ namespace SeroJob.UiSystem
         public List<UIWindow> OpenedWindows => _openedWindows;
         public string FlowName => _flowName;
 
-        private bool InputReceivable
-        {
-            set
-            {
-                foreach (var item in _windows)
-                {
-                    if (item.GraphicRaycaster) item.GraphicRaycaster.enabled = value;
-                }
-            }
-        }
-
         protected virtual void Awake()
         {
             UIProccessTracker.Reset();
@@ -79,6 +68,8 @@ namespace SeroJob.UiSystem
 
         public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
         {
+            this.SetAllWindowVisibility(true);
+
             if (closeOthers)
             {
                 foreach (var window in _windows)

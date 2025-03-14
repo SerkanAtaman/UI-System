@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SeroJob.UiSystem
 {
@@ -97,6 +98,30 @@ namespace SeroJob.UiSystem
             }
 
             return array;
+        }
+
+        public static void SetWindowVisibility(this FlowController flowController, bool isVisible, params string[] windowIDs)
+        {
+            if (flowController == null || windowIDs == null) return;
+
+            foreach (string windowID in windowIDs)
+            {
+                var window = flowController.GetWindowByID(windowID);
+                if (window != null) window.IsVisible = isVisible;
+            }
+        }
+
+        public static void SetAllWindowVisibility(this FlowController flowController, bool isVisible)
+        {
+            if (flowController == null) return;
+
+            int count = flowController.WindowsCollection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var window = flowController.WindowsCollection.ElementAt(i).Value;
+                if (window != null) window.IsVisible = isVisible;
+            }
         }
     }
 }
