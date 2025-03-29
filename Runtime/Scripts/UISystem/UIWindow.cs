@@ -10,6 +10,7 @@ namespace SeroJob.UiSystem
     public class UIWindow : MonoBehaviour, IFlowProvider
     {
         [ReadOnly][SerializeField] protected UIWindowState windowState = UIWindowState.Opened;
+        [ReadOnly][SerializeField] protected FlowController currentFlowController = null;
 
         [field:SerializeField] public string ID { get; private set; }
         [field:SerializeField] public FlowDatabase FlowDatabase { get; private set; }
@@ -21,6 +22,7 @@ namespace SeroJob.UiSystem
         #region Property Getters
 
         public UIWindowState State => windowState;
+        public FlowController CurrentFlowController => currentFlowController;
         
         public GraphicRaycaster GraphicRaycaster { get; private set; }
 
@@ -247,6 +249,13 @@ namespace SeroJob.UiSystem
             
         }
 
+        #endregion
+
+        #region InternalMethods
+        internal void SetCurrentFlowController(FlowController flowController)
+        {
+            currentFlowController = flowController;
+        }
         #endregion
 
         #region Callbacks

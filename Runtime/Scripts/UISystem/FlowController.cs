@@ -1,6 +1,7 @@
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SeroJob.UiSystem
@@ -54,6 +55,7 @@ namespace SeroJob.UiSystem
             UIData.OnWindowClosed.RemoveListener(OnWindowClosed);
             UIData.UnregisterFlowController(this);
             _flowDatabase.OnCommandGiven.RemoveListener(OnCommandGiven);
+            ClearWindowCollection();
         }
 
         private void SetWindowCollection()
@@ -62,8 +64,28 @@ namespace SeroJob.UiSystem
 
             foreach (var item in _windows)
             {
+                if (item == null) continue;
+
+                item.SetCurrentFlowController(this);
                 WindowsCollection.Add(item.ID, item);
             }
+        }
+
+        private void ClearWindowCollection()
+        {
+            if (WindowsCollection == null) return;
+
+            int count = WindowsCollection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var window = WindowsCollection.ElementAt(i).Value;
+                if (window != null && window.CurrentFlowController == this)
+                    window.SetCurrentFlowController(null);
+            }
+
+            WindowsCollection.Clear();
+            WindowsCollection = null;
         }
 
         public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
