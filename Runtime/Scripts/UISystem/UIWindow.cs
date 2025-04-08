@@ -7,10 +7,10 @@ namespace SeroJob.UiSystem
 {
     [RequireComponent(typeof(Canvas))]
     [RequireComponent(typeof(CanvasGroup))]
-    public class UIWindow : MonoBehaviour, IFlowProvider
+    public class UIWindow : MonoBehaviour, IFlowProvider, IScaleableWindow
     {
-        [ReadOnly][SerializeField] protected UIWindowState windowState = UIWindowState.Opened;
-        [ReadOnly][SerializeField] protected FlowController currentFlowController = null;
+        [SerializeField, ReadOnly] protected UIWindowState windowState = UIWindowState.Opened;
+        [SerializeField, ReadOnly] protected FlowController currentFlowController = null;
 
         [field:SerializeField] public string ID { get; private set; }
         [field:SerializeField] public FlowDatabase FlowDatabase { get; private set; }
@@ -18,7 +18,10 @@ namespace SeroJob.UiSystem
         [SerializeField] [OnValueChanged("OnCollabratorWindowsChanged")] UIWindowReference[] _collaboratorWindows;
 
         [SerializeField] protected UIPage[] pages;
-        
+
+        [SerializeField] protected bool isScalable = false;
+        [SerializeField, ShowIf("isScalable")] protected ScalableWindowElement[] scalableElements;
+
         #region Property Getters
 
         public UIWindowState State => windowState;
@@ -225,6 +228,16 @@ namespace SeroJob.UiSystem
             return FlowDatabase;
         }
 
+        public void SetScale(float scale)
+        {
+            if (scalableElements == null) return;
+
+            foreach (var element in scalableElements)
+            {
+                element?.ApplyScale(scale);
+            }
+        }
+
         #endregion
 
         #region ProtectedMethods
@@ -337,6 +350,14 @@ namespace SeroJob.UiSystem
 
         #region Editor Methods
 #if UNITY_EDITOR
+        protected virtual void OnValidate()
+        {
+            if (!isScalable)
+            {
+                scalableElements = null;
+                UnityEditor.EditorUtility.SetDirty(this);
+            }
+        }
 
         private void OnCollabratorWindowsChanged()
         {
@@ -390,7 +411,6 @@ namespace SeroJob.UiSystem
 
             OpenImmediately();
         }
-
 #endif
         #endregion
     }
