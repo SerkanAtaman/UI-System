@@ -7,7 +7,7 @@ namespace SeroJob.UiSystem
     {
         public static List<UIWindow> GetConflictedWindows(UIWindow refWindow, List<UIWindow> openedWindows)
         {
-            List<UIWindow> result = new List<UIWindow>();
+            var result = new List<UIWindow>();
 
             if (refWindow.CooperatedWindows.Contains("everything"))
                 return result;
@@ -27,7 +27,7 @@ namespace SeroJob.UiSystem
 
         public static List<UIWindow> GetConflictedWindows(UIWindow[] refWindows, List<UIWindow> openedWindows)
         {
-            List<UIWindow> result = new List<UIWindow>();
+            var result = new List<UIWindow>();
 
             foreach (var window in openedWindows)
             {
@@ -121,6 +121,20 @@ namespace SeroJob.UiSystem
             {
                 var window = flowController.WindowsCollection.ElementAt(i).Value;
                 if (window != null) window.IsVisible = isVisible;
+            }
+        }
+
+        public static void SetAllScalableWindowsScale(this FlowController flowController, float scale)
+        {
+            if (flowController == null || flowController.WindowsCollection == null) return;
+
+            int count = flowController.WindowsCollection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var window = flowController.WindowsCollection.ElementAt(i).Value;
+                if (window == null) continue;
+                if (window is IScaleableWindow scaleable) scaleable.SetScale(scale);
             }
         }
     }

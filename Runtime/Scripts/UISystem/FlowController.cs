@@ -11,6 +11,7 @@ namespace SeroJob.UiSystem
     {
         [SerializeField] private string _flowName;
         [SerializeField] private FlowDatabase _flowDatabase;
+        [SerializeField] private UISettings _settings;
         [SerializeField] private bool _setInitialsOnEnable = true;
         [SerializeField] private bool _closeAllOnEnable = false;
 
@@ -47,6 +48,8 @@ namespace SeroJob.UiSystem
 
             if (_setInitialsOnEnable) OpenInitialWindows(true, true);
             if (_closeAllOnEnable) CloseAll(true);
+
+            this.SetAllScalableWindowsScale(_settings.UIScale);
         }
 
         protected virtual void OnDestroy()
