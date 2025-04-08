@@ -30,6 +30,7 @@ namespace SeroJob.UiSystem
         public void ApplySettings()
         {
             UIDebugger.DebugEnabled = isDebugEnabled;
+            UIScale = _uiScale;
         }
 
 #if UNITY_EDITOR
