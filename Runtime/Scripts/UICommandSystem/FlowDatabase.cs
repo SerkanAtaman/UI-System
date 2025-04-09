@@ -6,7 +6,9 @@ namespace SeroJob.UiSystem
     [CreateAssetMenu(menuName = "SeroJob/UiSystem/FlowDatabase")]
     public class FlowDatabase : ScriptableObject
     {
-        [SerializeField][ReadOnly] private string[] _windowIDs;
+        [SerializeField, ReadOnly] private string _flowName;
+        [SerializeField] private bool _hideAllWindows = false;
+        [SerializeField, ReadOnly] private string[] _windowIDs;
 
         public string[] WindowIDs
         {
@@ -21,6 +23,24 @@ namespace SeroJob.UiSystem
             }
         }
 
+        public string FlowName
+        {
+            get => _flowName;
+            set => _flowName = value;
+        }
+
+        public bool HideAllWindows
+        {
+            get => _hideAllWindows;
+            set
+            {
+                _hideAllWindows = value;
+
+                var flow = UIData.GetRegisteredFlowControllerByName(_flowName);
+                if (flow != null) flow.SetAllWindowVisibility(!_hideAllWindows);
+            }
+        }
+
         public ProtectedAction<UICommand> OnCommandGiven { get; private set; }
 
         private void OnEnable()
@@ -32,5 +52,12 @@ namespace SeroJob.UiSystem
         {
             return _windowIDs;
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            HideAllWindows = _hideAllWindows;
+        }
+#endif
     }
 }

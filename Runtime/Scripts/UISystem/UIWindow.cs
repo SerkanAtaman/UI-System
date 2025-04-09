@@ -64,7 +64,7 @@ namespace SeroJob.UiSystem
                 return array;
             }
         }
-        public bool IsVisible
+        public virtual bool IsVisible
         {
             get
             {

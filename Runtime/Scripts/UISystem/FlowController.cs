@@ -93,7 +93,7 @@ namespace SeroJob.UiSystem
 
         public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
         {
-            this.SetAllWindowVisibility(true);
+            this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
 
             if (closeOthers)
             {
@@ -280,6 +280,8 @@ namespace SeroJob.UiSystem
                 Debug.LogWarning("FlowDatabase reference is null! Please provide a valid FlowDatabase object", gameObject);
                 return;
             }
+
+            _flowDatabase.FlowName = _flowName;
 
             if (_flowDatabase.GetRawWindowIds().Length == _windows.Length) return;
 
