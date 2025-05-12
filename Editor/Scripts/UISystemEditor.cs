@@ -32,7 +32,7 @@ namespace SeroJob.UiSystem.Editor
 
         public static UISettings CreateSettingsAsset()
         {
-            var path = "Assets/UI-System/UISettings.asset";
+            var path = "Assets/Serojob-UI-System/UISettings.asset";
             var settings = ScriptableObject.CreateInstance<UISettings>();
             var directory = Path.GetDirectoryName(path);
 
