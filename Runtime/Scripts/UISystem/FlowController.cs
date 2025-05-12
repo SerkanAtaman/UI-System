@@ -24,6 +24,7 @@ namespace SeroJob.UiSystem
         public Dictionary<string, UIWindow> WindowsCollection { get; private set; }
         public List<UIWindow> OpenedWindows => _openedWindows;
         public string FlowName => _flowName;
+        public UISettings Settings => _settings;
 
         protected virtual void Awake()
         {
