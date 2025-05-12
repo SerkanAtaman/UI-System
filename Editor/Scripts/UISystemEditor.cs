@@ -35,7 +35,7 @@ namespace SeroJob.UiSystem.Editor
                 result = AssetDatabase.LoadAssetAtPath<UISettings>(AssetDatabase.GUIDToAssetPath(settingsGuids[0]));
             }
 
-            AssignSettingsAssetToAddressables(result);
+            if (result != null) AssignSettingsAssetToAddressables(result);
 
             return result;
         }
@@ -86,8 +86,7 @@ namespace SeroJob.UiSystem.Editor
                     false, true, false, null, typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
             }
 
-            var entry = addressableSettings.CreateOrMoveEntry(assetGuid, group, true);
-            entry.address = settings.name;
+            currentEntry = addressableSettings.CreateOrMoveEntry(assetGuid, group, true);
 
             AssignSettingsAddressableLabel(currentEntry);
 
