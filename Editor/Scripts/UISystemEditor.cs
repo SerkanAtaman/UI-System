@@ -1,69 +1,50 @@
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace SeroJob.UiSystem.Editor
 {
-    [InitializeOnLoad]
-    public static class UISystemEditor
+    public class UISystemEditor : AssetPostprocessor
     {
-        private const string SETTINGS_ASSET_PATH = "Assets/Resources/UISystem/UISettings.asset";
-        private const string RESOURCES_FOLDER_PATH = "Assets/Resources";
-        private const string SETTINGS_FOLDER_PATH = "Assets/Resources/UISystem";
-
-        private static bool ResourcesFolderExist => AssetDatabase.IsValidFolder(RESOURCES_FOLDER_PATH);
-        private static bool SettingsFolderExist => AssetDatabase.IsValidFolder(SETTINGS_FOLDER_PATH);
-        private static bool SettingsAssetsExist
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
         {
-            get
-            {
-                UISettings asset = AssetDatabase.LoadAssetAtPath<UISettings>(SETTINGS_ASSET_PATH);
+            if (!didDomainReload) return;
 
-                return asset != null;
-            }
+            GetSettingsAsset();
         }
 
-        static UISystemEditor()
+        public static UISettings GetSettingsAsset()
         {
-            CreateSettingsAssetIfNotExist();
-        }
+            var settingsGuids = AssetDatabase.FindAssets("t:UISettings");
 
-        [MenuItem("Window/UISystem/CreateSettings")]
-        public static void CreateSettingsAsset()
-        {
-            if (SettingsAssetsExist)
+            if (settingsGuids == null || settingsGuids.Length < 1)
             {
-                UIDebugger.LogWarning("UISystem Settings Asset is already exist under the resources folder");
-                return;
+                return CreateSettingsAsset();
             }
 
-            UISettings settingsInstance = ScriptableObject.CreateInstance<UISettings>();
-
-            if (!ResourcesFolderExist) CreateResourcesFolder();
-            if (!SettingsFolderExist) CreateSettingsFolder();
-
-            AssetDatabase.CreateAsset(settingsInstance, SETTINGS_ASSET_PATH);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-        }
-
-        private static void CreateResourcesFolder()
-        {
-            AssetDatabase.CreateFolder("Assets", "Resources");
-        }
-
-        private static void CreateSettingsFolder()
-        {
-            AssetDatabase.CreateFolder("Assets/Resources", "UISystem");
-        }
-
-        private static void CreateSettingsAssetIfNotExist()
-        {
-            if (!SettingsAssetsExist)
+            for (int i = 1; i < settingsGuids.Length; i++)
             {
-                UIDebugger.LogMessage("Failed to find UISettings asset in the resources folder. Creating a new one!");
-
-                CreateSettingsAsset();
+                Debug.LogWarning("Please delete the extra UIsettings asset at: " + AssetDatabase.GUIDToAssetPath(settingsGuids[i]));
             }
+
+            return AssetDatabase.LoadAssetAtPath<UISettings>(AssetDatabase.GUIDToAssetPath(settingsGuids[0]));
+        }
+
+        public static UISettings CreateSettingsAsset()
+        {
+            var path = "Assets/UI-System/UISettings.asset";
+            var settings = ScriptableObject.CreateInstance<UISettings>();
+            var directory = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
+            AssetDatabase.CreateAsset(settings, path);
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssetIfDirty(settings);
+
+            Debug.Log("Created UISettings asset at: " + path);
+
+            return settings;
         }
     }
 }
