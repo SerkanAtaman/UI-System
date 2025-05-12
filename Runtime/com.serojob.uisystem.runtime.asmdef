@@ -3,7 +3,9 @@
     "rootNamespace": "",
     "references": [
         "BrunoMikoski.AnimationSequencer",
-        "NaughtyAttributes.Core"
+        "NaughtyAttributes.Core",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -2,7 +2,8 @@
     "name": "com.serojob.uisystem.editor",
     "rootNamespace": "",
     "references": [
-        "com.serojob.uisystem.runtime"
+        "com.serojob.uisystem.runtime",
+        "Unity.Addressables.Editor"
     ],
     "includePlatforms": [
         "Editor"

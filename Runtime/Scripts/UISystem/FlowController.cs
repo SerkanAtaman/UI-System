@@ -11,7 +11,6 @@ namespace SeroJob.UiSystem
     {
         [SerializeField] private string _flowName;
         [SerializeField] private FlowDatabase _flowDatabase;
-        [SerializeField] private UISettings _settings;
         [SerializeField] private bool _setInitialsOnEnable = true;
         [SerializeField] private bool _closeAllOnEnable = false;
 
@@ -24,15 +23,20 @@ namespace SeroJob.UiSystem
         public Dictionary<string, UIWindow> WindowsCollection { get; private set; }
         public List<UIWindow> OpenedWindows => _openedWindows;
         public string FlowName => _flowName;
-        public UISettings Settings => _settings;
 
-        protected virtual void Awake()
+        protected virtual async void Awake()
         {
-            if (_settings != null) _settings.ApplySettings();
             SetWindowCollection();
+
+            if (!UIData.IsInitialized)
+            {
+                await UIData.Init();
+            }
+
+            if (UIData.UISettings != null) UIData.UISettings.ApplySettings();
         }
 
-        protected virtual void Start()
+        protected virtual async void Start()
         {
             UIData.OnWindowOpened.AddListener(OnWindowOpened);
             UIData.OnWindowClosed.AddListener(OnWindowClosed);
@@ -43,7 +47,15 @@ namespace SeroJob.UiSystem
             if (_setInitialsOnEnable) OpenInitialWindows(true, true);
             if (_closeAllOnEnable) CloseAll(true);
 
-            this.SetAllScalableWindowsScale(_settings.UIScale);
+            if (UIData.UISettings != null)
+            {
+                this.SetAllScalableWindowsScale(UIData.UISettings.UIScale);
+            }
+            else
+            {
+                await UIData.Init();
+                this.SetAllScalableWindowsScale(UIData.UISettings.UIScale);
+            }
         }
 
         protected virtual void OnDestroy()
@@ -85,8 +97,10 @@ namespace SeroJob.UiSystem
             WindowsCollection = null;
         }
 
-        public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
+        public async void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
         {
+            if (!UIData.IsInitialized) await UIData.Init();
+
             this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
 
             if (closeOthers)
