@@ -1,6 +1,6 @@
 {
   "name": "com.serojob.uisystem",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "displayName": "UI System",
   "description": "A flow base ui system that controls ui windows",
   "unity": "2021.3",
