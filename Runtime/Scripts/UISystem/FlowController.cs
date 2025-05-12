@@ -28,14 +28,7 @@ namespace SeroJob.UiSystem
 
         protected virtual void Awake()
         {
-            UIProccessTracker.Reset();
-
-            if (UIResourceHelper.TryLoadSettings())
-            {
-                UIResourceHelper.Settings.ApplySettings();
-                UIResourceHelper.ReleaseSettings();
-            }
-
+            if (_settings != null) _settings.ApplySettings();
             SetWindowCollection();
         }
 
