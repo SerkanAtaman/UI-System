@@ -49,14 +49,15 @@ namespace SeroJob.UiSystem
             Debug.Log("Initializing UI Data");
 
             IsInitializing = true;
-            var op = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UISettings>("SerojobUISystemSettings");
+            UISettings = null;
 
-            while (op.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.None || !op.IsDone)
+            StartGetSettingsTask();
+
+            while (UISettings == null)
             {
                 await System.Threading.Tasks.Task.Delay(300);
             }
 
-            UISettings = op.Result;
             IsInitialized = true;
             IsInitializing = false;
 
@@ -83,6 +84,16 @@ namespace SeroJob.UiSystem
             }
 
             return null;
+        }
+
+        private static void StartGetSettingsTask()
+        {
+            UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UISettings>("SerojobUISystemSettings").Completed += OnGetSettingsCompleted;
+        }
+
+        private static void OnGetSettingsCompleted(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UISettings> obj)
+        {
+            UISettings = obj.Result;
         }
     }
 }
