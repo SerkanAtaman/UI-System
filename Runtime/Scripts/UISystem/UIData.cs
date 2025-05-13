@@ -41,7 +41,7 @@ namespace SeroJob.UiSystem
             {
                 while (!IsInitialized)
                 {
-                    await System.Threading.Tasks.Task.Delay(300);
+                    await System.Threading.Tasks.Task.Delay(100);
                     return;
                 }
             }
@@ -55,7 +55,7 @@ namespace SeroJob.UiSystem
 
             while (UISettings == null)
             {
-                await System.Threading.Tasks.Task.Delay(300);
+                await System.Threading.Tasks.Task.Delay(100);
             }
 
             IsInitialized = true;
@@ -95,5 +95,33 @@ namespace SeroJob.UiSystem
         {
             UISettings = obj.Result;
         }
+
+        #region EDITOR
+#if UNITY_EDITOR
+        public static void EditorInit()
+        {
+            if (IsInitialized) return;
+
+            Debug.Log("Initializing UI Data");
+
+            IsInitializing = true;
+            UISettings = GetEditorSettings();
+
+            IsInitialized = true;
+            IsInitializing = false;
+
+            Debug.Log("UI Data is now initialized");
+        }
+
+        private static UISettings GetEditorSettings()
+        {
+            var guids = UnityEditor.AssetDatabase.FindAssets("t:UISettings");
+
+            if (guids == null || guids.Length < 1) return null;
+
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<UISettings>(UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]));
+        }
+#endif
+        #endregion
     }
 }

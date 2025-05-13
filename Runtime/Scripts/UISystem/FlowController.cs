@@ -24,6 +24,33 @@ namespace SeroJob.UiSystem
         public List<UIWindow> OpenedWindows => _openedWindows;
         public string FlowName => _flowName;
 
+#if UNITY_EDITOR
+        protected virtual void Awake()
+        {
+            SetWindowCollection();
+
+            if (!UIData.IsInitialized)
+            {
+                UIData.EditorInit();
+            }
+
+            if (UIData.UISettings != null) UIData.UISettings.ApplySettings();
+        }
+
+        protected virtual void Start()
+        {
+            UIData.OnWindowOpened.AddListener(OnWindowOpened);
+            UIData.OnWindowClosed.AddListener(OnWindowClosed);
+            UIData.RegisterFlowController(this);
+            _flowDatabase.OnCommandGiven.AddListener(OnCommandGiven);
+            _openedWindows = new List<UIWindow>();
+
+            if (_setInitialsOnEnable) OpenInitialWindows(true, true);
+            if (_closeAllOnEnable) CloseAll(true);
+
+            this.SetAllScalableWindowsScale(UIData.UISettings.UIScale);
+        }
+#else
         protected virtual async void Awake()
         {
             SetWindowCollection();
@@ -57,6 +84,7 @@ namespace SeroJob.UiSystem
                 this.SetAllScalableWindowsScale(UIData.UISettings.UIScale);
             }
         }
+#endif
 
         protected virtual void OnDestroy()
         {
@@ -97,6 +125,40 @@ namespace SeroJob.UiSystem
             WindowsCollection = null;
         }
 
+#if UNITY_EDITOR
+        public void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
+        {
+            if (!UIData.IsInitialized) UIData.EditorInit();
+
+            this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
+
+            if (closeOthers)
+            {
+                foreach (var window in _windows)
+                {
+                    if (!WindowRefArrayContains(_initialWindows, window))
+                    {
+                        CloseWindow(window, openImmediately, false);
+                    }
+                }
+            }
+
+            foreach (var window in _windows)
+            {
+                if (WindowRefArrayContains(_initialWindows, window))
+                {
+                    if (window.State == UIWindowState.Opened && !openImmediately)
+                    {
+                        if (!_openedWindows.Contains(window)) _openedWindows.Add(window);
+                    }
+                    else
+                    {
+                        OpenWindow(window, openImmediately, false);
+                    }
+                }
+            }
+        }
+#else
         public async void OpenInitialWindows(bool openImmediately, bool closeOthers = false)
         {
             if (!UIData.IsInitialized) await UIData.Init();
@@ -129,6 +191,7 @@ namespace SeroJob.UiSystem
                 }
             }
         }
+#endif
 
         public void CloseAll(bool closeImmediately)
         {
@@ -309,6 +372,6 @@ namespace SeroJob.UiSystem
         }
 
 #endif
-        #endregion
+#endregion
     }
 }
