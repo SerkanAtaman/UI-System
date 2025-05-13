@@ -19,7 +19,7 @@ namespace SeroJob.UiSystem.Editor
         public static UISettings GetSettingsAsset()
         {
             var settingsGuids = AssetDatabase.FindAssets("t:UISettings");
-            UISettings result = null;
+            UISettings result;
 
             if (settingsGuids == null || settingsGuids.Length < 1)
             {
@@ -83,7 +83,7 @@ namespace SeroJob.UiSystem.Editor
             if (group == null)
             {
                 group = addressableSettings.CreateGroup(targetGroupName,
-                    false, true, false, null, typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
+                    false, true, true, null, typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
             }
 
             currentEntry = addressableSettings.CreateOrMoveEntry(assetGuid, group, true);
@@ -96,26 +96,9 @@ namespace SeroJob.UiSystem.Editor
 
         public static void AssignSettingsAddressableLabel(AddressableAssetEntry addressableEntry)
         {
-            if (addressableEntry == null) return;
+            if (addressableEntry == null || addressableEntry.labels.Contains("SerojobUISystemSettings")) return;
 
-            if (addressableEntry.labels == null || addressableEntry.labels.Count < 1)
-            {
-                addressableEntry.SetLabel("SerojobUISystemSettings", true);
-            }
-            else if (addressableEntry.labels.Count > 1)
-            {
-                addressableEntry.labels.Clear();
-                addressableEntry.SetLabel("SerojobUISystemSettings", true);
-            }
-            else if (!addressableEntry.labels.Contains("SerojobUISystemSettings"))
-            {
-                addressableEntry.labels.Clear();
-                addressableEntry.SetLabel("SerojobUISystemSettings", true);
-            }
-            else
-            {
-                return;
-            }
+            addressableEntry.SetLabel("SerojobUISystemSettings", true, true);
 
             EditorUtility.SetDirty(addressableEntry.parentGroup);
             EditorUtility.SetDirty(addressableEntry.parentGroup.Settings);
