@@ -107,7 +107,10 @@ namespace SeroJob.UiSystem
             foreach (string windowID in windowIDs)
             {
                 var window = flowController.GetWindowByID(windowID);
-                if (window != null) window.IsVisible = isVisible;
+                if (window == null) continue;
+                if (window.PreventBeingHidden && !isVisible) continue;
+
+                window.IsVisible = isVisible;
             }
         }
 
@@ -120,7 +123,10 @@ namespace SeroJob.UiSystem
             for (int i = 0; i < count; i++)
             {
                 var window = flowController.WindowsCollection.ElementAt(i).Value;
-                if (window != null) window.IsVisible = isVisible;
+                if (window == null) continue;
+                if (window.PreventBeingHidden && !isVisible) continue;
+
+                window.IsVisible = isVisible;
             }
         }
 

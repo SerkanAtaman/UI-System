@@ -22,6 +22,8 @@ namespace SeroJob.UiSystem
         [SerializeField] protected bool isScalable = false;
         [SerializeField, ShowIf("isScalable")] protected ScalableWindowElement[] scalableElements;
 
+        public bool PreventBeingHidden = false;
+
         #region Property Getters
 
         public UIWindowState State => windowState;
