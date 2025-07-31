@@ -80,14 +80,13 @@ namespace SeroJob.UiSystem
 
         #endregion
 
-        #region Private Variables
+        #region Variables
 
-        private int _remainingPagesToAnimate;
+        protected int remainingPagesToAnimate;
+        protected Action onWindowAnimatedCallback;
 
         private Canvas _canvas;
         private CanvasGroup _canvasGroup;
-
-        private Action _onWindowAnimatedCallback;
 
         #endregion
 
@@ -107,80 +106,77 @@ namespace SeroJob.UiSystem
 
         public virtual void Open(Action callback = null)
         {
-            if (State != UIWindowState.Closed) return;
-            
+            if (State == UIWindowState.Opened || State == UIWindowState.Opening) return;
+
             gameObject.SetActive(true);
             Canvas.enabled = true;
-
             windowState = UIWindowState.Opening;
+            onWindowAnimatedCallback = callback;
 
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = callback;
-            
             WindowOpenStarted();
             UIData.OnWindowOpened.Invoke(this);
 
+            if (pages == null || pages.Length < 1)
+            {
+                remainingPagesToAnimate = 1;
+                OnPageOpened();
+                return;
+            }
+
+            remainingPagesToAnimate = pages.Length;
+
             foreach (var page in pages)
             {
+                if (page == null)
+                {
+                    OnPageOpened();
+                    continue;
+                }
+
                 page.Open(OnPageOpened);
             }
         }
 
         public virtual void OpenWithoutCallback()
         {
-            if (State != UIWindowState.Closed) return;
-
-            gameObject.SetActive(true);
-            Canvas.enabled = true;
-
-            windowState = UIWindowState.Opening;
-
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = null;
-
-            WindowOpenStarted();
-            UIData.OnWindowOpened.Invoke(this);
-
-            foreach (var page in pages)
-            {
-                page.Open(OnPageOpened);
-            }
+            Open(null);
         }
 
         public virtual void Close(Action callback = null)
         {
-            if (State != UIWindowState.Opened) return;
-            
+            if (State == UIWindowState.Closed || State == UIWindowState.Closing) return;
+
             windowState = UIWindowState.Closing;
 
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = callback;
-            
             WindowCloseStarted();
             UIData.OnWindowClosed.Invoke(this);
 
+            onWindowAnimatedCallback = callback;
+
+            if (pages == null || pages.Length < 1)
+            {
+                remainingPagesToAnimate = 1;
+                OnPageClosed();
+                return;
+            }
+
+            remainingPagesToAnimate = pages.Length;
+            
             foreach (var page in pages)
             {
+                if (page == null)
+                {
+                    OnPageClosed();
+                    continue;
+                }
+
                 page.Close(OnPageClosed);
             }
         }
 
         public virtual void CloseWithoutCallback()
         {
-            if (State != UIWindowState.Opened) return;
-
-            windowState = UIWindowState.Closing;
-
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = null;
-
-            WindowCloseStarted();
-            UIData.OnWindowClosed.Invoke(this);
-
-            foreach (var page in pages)
-            {
-                page.Close(OnPageClosed);
-            }
+            Close(null);
         }
 
         public virtual void OpenImmediately()
@@ -190,8 +186,8 @@ namespace SeroJob.UiSystem
             gameObject.SetActive(true);
             Canvas.enabled = true;
 
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = null;
+            remainingPagesToAnimate = pages.Length;
+            onWindowAnimatedCallback = null;
             
             WindowOpenStarted();
 
@@ -207,8 +203,8 @@ namespace SeroJob.UiSystem
         {
             windowState = UIWindowState.Closing;
             
-            _remainingPagesToAnimate = pages.Length;
-            _onWindowAnimatedCallback = null;
+            remainingPagesToAnimate = pages.Length;
+            onWindowAnimatedCallback = null;
 
             WindowCloseStarted();
             
@@ -238,6 +234,20 @@ namespace SeroJob.UiSystem
             {
                 element?.ApplyScale(scale);
             }
+        }
+
+        public T GetPage<T>() where T : UIPage
+        {
+            if (pages == null) return null;
+
+            foreach (var page in pages)
+            {
+                if (page == null) continue;
+
+                if (page.GetType() == typeof(T)) return (T)page;
+            }
+
+            return null;
         }
 
         #endregion
@@ -277,25 +287,26 @@ namespace SeroJob.UiSystem
 
         private void OnPageOpened()
         {
-            _remainingPagesToAnimate--;
+            remainingPagesToAnimate--;
 
-            if(_remainingPagesToAnimate == 0)
+            if(remainingPagesToAnimate == 0)
             {
                 windowState = UIWindowState.Opened;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
                 WindowOpenEnded();
-                
-                _onWindowAnimatedCallback?.Invoke();
-                _onWindowAnimatedCallback = null;
-                _remainingPagesToAnimate = -99;
+
+                var callback = onWindowAnimatedCallback;
+                onWindowAnimatedCallback = null;
+                remainingPagesToAnimate = -99;
+                callback?.Invoke();
             }
         }
 
         private void OnPageClosed()
         {
-            _remainingPagesToAnimate--;
+            remainingPagesToAnimate--;
 
-            if (_remainingPagesToAnimate == 0)
+            if (remainingPagesToAnimate == 0)
             {
                 windowState = UIWindowState.Closed;
                 
@@ -305,17 +316,18 @@ namespace SeroJob.UiSystem
                 Canvas.enabled = false;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
-                _onWindowAnimatedCallback?.Invoke();
-                _onWindowAnimatedCallback = null;
-                _remainingPagesToAnimate = -99;
+                var callback = onWindowAnimatedCallback;
+                onWindowAnimatedCallback = null;
+                remainingPagesToAnimate = -99;
+                callback?.Invoke();
             }
         }
 
         private void OnPageHiddenInstantly()
         {
-            _remainingPagesToAnimate--;
+            remainingPagesToAnimate--;
 
-            if (_remainingPagesToAnimate == 0)
+            if (remainingPagesToAnimate == 0)
             {
                 windowState = UIWindowState.Closed;
 
@@ -325,26 +337,28 @@ namespace SeroJob.UiSystem
                 Canvas.enabled = false;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
-                _onWindowAnimatedCallback?.Invoke();
-                _onWindowAnimatedCallback = null;
-                _remainingPagesToAnimate = -99;
+                var callback = onWindowAnimatedCallback;
+                onWindowAnimatedCallback = null;
+                remainingPagesToAnimate = -99;
+                callback?.Invoke();
             }
         }
 
         private void OnPageOpenedInstantly()
         {
-            _remainingPagesToAnimate--;
+            remainingPagesToAnimate--;
 
-            if (_remainingPagesToAnimate == 0)
+            if (remainingPagesToAnimate == 0)
             {
                 windowState = UIWindowState.Opened;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = true;
 
                 WindowOpenEnded();
 
-                _onWindowAnimatedCallback?.Invoke();
-                _onWindowAnimatedCallback = null;
-                _remainingPagesToAnimate = -99;
+                var callback = onWindowAnimatedCallback;
+                onWindowAnimatedCallback = null;
+                remainingPagesToAnimate = -99;
+                callback?.Invoke();
             }
         }
 

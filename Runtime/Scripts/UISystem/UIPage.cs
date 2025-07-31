@@ -18,6 +18,9 @@ namespace SeroJob.UiSystem
         [SerializeField] [Foldout("Animations")] private AnimationSequencerController _openAnim;
         [SerializeField] [Foldout("Animations")] private AnimationSequencerController _closeAnim;
 
+        public AnimationSequencerController OpenAnim => _openAnim;
+        public AnimationSequencerController CloseAnim => _closeAnim;
+
         #endregion
 
         #region Events
@@ -46,7 +49,11 @@ namespace SeroJob.UiSystem
 
         public virtual void Open(Action callback)
         {
-            if (PageState != UIPageState.Closed) return;
+            if (PageState == UIPageState.Opening || PageState == UIPageState.Opened)
+            {
+                callback?.Invoke();
+                return;
+            }
 
             _pageActionCallback = callback;
             _remainingElementsToAnimate = elements == null ? 0 : elements.Length;
@@ -55,20 +62,18 @@ namespace SeroJob.UiSystem
             StartOpening();
         }
 
-        public virtual void Open()
+        public void Open()
         {
-            if (PageState != UIPageState.Closed) return;
-
-            _pageActionCallback = null;
-            _remainingElementsToAnimate = elements == null ? 0 : elements.Length;
-
-            OnOpenStarted();
-            StartOpening();
+            Open(null);
         }
 
         public virtual void Close(Action callback)
         {
-            if (PageState != UIPageState.Opened) return;
+            if (PageState == UIPageState.Closing || pageState == UIPageState.Closed)
+            {
+                callback?.Invoke();
+                return;
+            }
 
             _pageActionCallback = callback;
             _remainingElementsToAnimate = elements == null ? 0 : elements.Length;
@@ -79,13 +84,7 @@ namespace SeroJob.UiSystem
 
         public virtual void Close()
         {
-            if (PageState != UIPageState.Opened) return;
-
-            _pageActionCallback = null;
-            _remainingElementsToAnimate = elements == null ? 0 : elements.Length;
-
-            OnHideStarted();
-            StartClosing();
+            Close(null);
         }
 
         public virtual void OpenImmediately(Action callback)
@@ -100,9 +99,13 @@ namespace SeroJob.UiSystem
             _openAnim.Play();
             _openAnim.Complete(true);
 
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.OpenImmediately();
+                foreach (var element in elements)
+                {
+                    if (element == null) continue;
+                    element.OpenImmediately();
+                }
             }
 
             pageState = UIPageState.Opened;
@@ -113,24 +116,7 @@ namespace SeroJob.UiSystem
 
         public virtual void OpenImmediately()
         {
-            _openAnim.Kill(false);
-            _closeAnim.Kill(false);
-
-            pageState = UIPageState.Opening;
-            OnOpenStarted();
-            _onStartedOpen?.Invoke();
-
-            _openAnim.Play();
-            _openAnim.Complete(true);
-
-            foreach (var element in elements)
-            {
-                element.OpenImmediately();
-            }
-
-            pageState = UIPageState.Opened;
-            OnHideEnded();
-            _onFinishedOpen?.Invoke();
+            OpenImmediately(null);
         }
 
         public virtual void HideImmediately(Action callback)
@@ -145,9 +131,13 @@ namespace SeroJob.UiSystem
             _closeAnim.Play();
             _closeAnim.Complete(true);
 
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.HideImmediately();
+                foreach (var element in elements)
+                {
+                    if (element == null) continue;
+                    element.HideImmediately();
+                }
             }
 
             pageState = UIPageState.Closed;
@@ -158,24 +148,7 @@ namespace SeroJob.UiSystem
 
         public virtual void HideImmediately()
         {
-            _closeAnim.Kill(false);
-            _openAnim.Kill(false);
-
-            pageState = UIPageState.Closing;
-            OnHideStarted();
-            _onStartedClose?.Invoke();
-
-            _closeAnim.Play();
-            _closeAnim.Complete(true);
-
-            foreach (var element in elements)
-            {
-                element.HideImmediately();
-            }
-
-            pageState = UIPageState.Closed;
-            OnHideEnded();
-            _onFinishedClose?.Invoke();
+            HideImmediately(null);
         }
 
         #endregion
@@ -186,12 +159,18 @@ namespace SeroJob.UiSystem
         {
             pageState = UIPageState.Opening;
 
+            _openAnim.Kill(false);
+            _closeAnim.Kill(false);
             _openAnim.Play(OnPageOpenAnimEnded);
 
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.OnOpened.AddListener(OnElementOpened);
-                element.PageStartedOpening();
+                foreach (var element in elements)
+                {
+                    if (element == null) continue;
+                    element.OnOpened.AddListener(OnElementOpened);
+                    element.PageStartedOpening();
+                }
             }
 
             _onStartedOpen?.Invoke();
@@ -201,8 +180,9 @@ namespace SeroJob.UiSystem
         {
             pageState = UIPageState.Opened;
 
-            _pageActionCallback?.Invoke();
+            var callback = _pageActionCallback;
             _pageActionCallback = null;
+            callback?.Invoke();
 
             _onFinishedOpen?.Invoke();
         }
@@ -211,13 +191,27 @@ namespace SeroJob.UiSystem
         {
             pageState = UIPageState.Closing;
 
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.OnClosed.AddListener(OnElementClosed);
-                element.PageStartedClosing();
+                foreach (var element in elements)
+                {
+                    if (element == null)
+                    {
+                        OnElementClosed(null);
+                        continue;
+                    }
+
+                    element.OnClosed.AddListener(OnElementClosed);
+                    element.PageStartedClosing();
+                }
             }
 
-            if (_remainingElementsToAnimate == 0) _closeAnim.Play(OnPageCloseAnimEnded);
+            if (_remainingElementsToAnimate == 0)
+            {
+                _closeAnim.Kill(false);
+                _openAnim.Kill(false);
+                _closeAnim.Play(OnPageCloseAnimEnded);
+            }
 
             _onStartedClose?.Invoke();
         }
@@ -226,8 +220,9 @@ namespace SeroJob.UiSystem
         {
             pageState = UIPageState.Closed;
 
-            _pageActionCallback?.Invoke();
+            var callback = _pageActionCallback;
             _pageActionCallback = null;
+            callback?.Invoke();
 
             _onFinishedClose?.Invoke();
         }
@@ -248,7 +243,8 @@ namespace SeroJob.UiSystem
 
         private void OnElementOpened(UIElement element)
         {
-            element.OnOpened.RemoveListener(OnElementOpened);
+            if (element)
+                element.OnOpened.RemoveListener(OnElementOpened);
 
             _remainingElementsToAnimate--;
 
@@ -262,21 +258,27 @@ namespace SeroJob.UiSystem
 
         private void OnElementClosed(UIElement element)
         {
-            element.OnClosed.RemoveListener(OnElementClosed);
+            if (element)
+                element.OnClosed.RemoveListener(OnElementClosed);
 
             _remainingElementsToAnimate--;
 
             if (_remainingElementsToAnimate == 0)
             {
+                _closeAnim.Kill(false);
                 _closeAnim.Play(OnPageCloseAnimEnded);
             }
         }
 
         private void OnPageOpenAnimEnded()
         {
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.PageFinishedOpening();
+                foreach (var element in elements)
+                {
+                    if (element == null) continue;
+                    element.PageFinishedOpening();
+                }
             }
 
             if (_remainingElementsToAnimate > 0) return;
@@ -286,9 +288,13 @@ namespace SeroJob.UiSystem
 
         private void OnPageCloseAnimEnded()
         {
-            foreach (var element in elements)
+            if (elements != null)
             {
-                element.PageFinishedClosing();
+                foreach (var element in elements)
+                {
+                    if (element == null) continue;
+                    element.PageFinishedClosing();
+                }
             }
 
             FinishClosing();

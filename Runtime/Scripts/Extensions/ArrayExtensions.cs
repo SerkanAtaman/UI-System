@@ -187,5 +187,17 @@ namespace SeroJob.UiSystem
 
             return newArray;
         }
+
+        public static int IndexOf<T>(this T[] array, T element)
+        {
+            if (array == null || element == null) return -1;
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i].Equals(element)) return i;
+            }
+
+            return -1;
+        }
     }
 }
