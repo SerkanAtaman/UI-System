@@ -7,7 +7,6 @@ namespace SeroJob.UiSystem
     {
         public UIPage Page;
         public RectTransform Parent;
-        public Vector2 DefaultParentSize;
 
         public Tween ActiveTween;
 
@@ -15,7 +14,6 @@ namespace SeroJob.UiSystem
         {
             Page = page;
             Parent = page.transform.parent.GetComponent<RectTransform>();
-            DefaultParentSize = Parent.sizeDelta;
             ActiveTween = null;
         }
     }

@@ -11,6 +11,8 @@ namespace SeroJob.UiSystem
 
         public float ExpandLayoutDuration = 0.5f;
 
+        public VerticalLayoutGroup Layout => layout;
+
         protected VerticalLayoutPagePreset[] defaultPagePresets;
 
         protected override void Awake()
@@ -102,23 +104,26 @@ namespace SeroJob.UiSystem
 
             preset.ActiveTween?.Kill(false);
 
-            if (!preset.Page.gameObject.activeSelf)
+            if (!preset.Parent.gameObject.activeSelf)
             {
-                preset.Parent.sizeDelta = new Vector2(preset.DefaultParentSize.x, layout.spacing * -1);
                 preset.Parent.gameObject.SetActive(true);
+                preset.Parent.sizeDelta = new Vector2(((RectTransform)preset.Page.transform).sizeDelta.x, layout.spacing * -1);
             }
 
             if (!IsAnyNextPageOpen(page))
             {
-                preset.Parent.sizeDelta = preset.DefaultParentSize;
-                preset.ActiveTween = null;
-                if (!page.gameObject.activeSelf) page.gameObject.SetActive(true);
+                if (!page.gameObject.activeSelf)
+                    page.gameObject.SetActive(true);
+
                 page.Open();
+                preset.Parent.sizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
+                preset.ActiveTween = null;
+                
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
             }
             else
             {
-                var expandTween = preset.Parent.DOSizeDelta(preset.DefaultParentSize, ExpandLayoutDuration);
+                var expandTween = preset.Parent.DOSizeDelta(((RectTransform)preset.Page.transform).sizeDelta, ExpandLayoutDuration);
                 expandTween.onUpdate += () =>
                 {
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
@@ -154,8 +159,8 @@ namespace SeroJob.UiSystem
             if (page.PageState == UIPageState.Closing || page.PageState == UIPageState.Closed) return;
 
             preset.ActiveTween?.Kill(false);
-            
-            var targetSizeDelta = preset.DefaultParentSize;
+
+            var targetSizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
             targetSizeDelta.y = layout.spacing * -1;
 
             if (!IsAnyNextPageOpen(page))
