@@ -15,6 +15,8 @@ namespace SeroJob.UiSystem
 
         protected VerticalLayoutPagePreset[] defaultPagePresets;
 
+        protected bool blockDimensionChangeCallback = false;
+
         protected override void Awake()
         {
             base.Awake();
@@ -35,6 +37,11 @@ namespace SeroJob.UiSystem
                     defaultPagePresets[i].Parent.gameObject.SetActive(false);
                 }
             }
+        }
+
+        private void OnEnable()
+        {
+            blockDimensionChangeCallback = false;
         }
 
         protected override void WindowCloseEnded()
@@ -102,27 +109,36 @@ namespace SeroJob.UiSystem
             if (State != UIWindowState.Opening && State != UIWindowState.Opened)
                 CurrentFlowController.OpenWindow(ID, null, true);
 
+            MovePageToOpen(page, preset);
+        }
+
+        private void MovePageToOpen(UIPage page, VerticalLayoutPagePreset preset)
+        {
             preset.ActiveTween?.Kill(false);
 
             if (!preset.Parent.gameObject.activeSelf)
             {
+                blockDimensionChangeCallback = true;
                 preset.Parent.gameObject.SetActive(true);
                 preset.Parent.sizeDelta = new Vector2(((RectTransform)preset.Page.transform).sizeDelta.x, layout.spacing * -1);
+                blockDimensionChangeCallback = false;
             }
 
             if (!IsAnyNextPageOpen(page))
             {
+                blockDimensionChangeCallback = true;
                 if (!page.gameObject.activeSelf)
                     page.gameObject.SetActive(true);
-
                 page.Open();
                 preset.Parent.sizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
                 preset.ActiveTween = null;
-                
+
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
+                blockDimensionChangeCallback = false;
             }
             else
             {
+                blockDimensionChangeCallback = true;
                 var expandTween = preset.Parent.DOSizeDelta(((RectTransform)preset.Page.transform).sizeDelta, ExpandLayoutDuration);
                 expandTween.onUpdate += () =>
                 {
@@ -134,9 +150,11 @@ namespace SeroJob.UiSystem
                     if (!page.gameObject.activeSelf) page.gameObject.SetActive(true);
                     page.Open();
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
+                    blockDimensionChangeCallback = false;
                 };
 
                 preset.ActiveTween = expandTween;
+                blockDimensionChangeCallback = false;
             }
         }
 
@@ -158,6 +176,11 @@ namespace SeroJob.UiSystem
 
             if (page.PageState == UIPageState.Closing || page.PageState == UIPageState.Closed) return;
 
+            MovePageToClose(page, preset);
+        }
+
+        private void MovePageToClose(UIPage page, VerticalLayoutPagePreset preset)
+        {
             preset.ActiveTween?.Kill(false);
 
             var targetSizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
@@ -167,24 +190,29 @@ namespace SeroJob.UiSystem
             {
                 page.Close(() =>
                 {
+                    blockDimensionChangeCallback = true;
                     preset.Parent.sizeDelta = targetSizeDelta;
                     preset.Page.gameObject.SetActive(false);
                     preset.Parent.gameObject.SetActive(false);
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
+                    blockDimensionChangeCallback = false;
                 });
             }
             else
             {
+                blockDimensionChangeCallback = true;
                 page.Close();
 
                 var duration = page.CloseAnim.GetMaxDuration();
                 var tween = preset.Parent.DOSizeDelta(targetSizeDelta, duration).SetDelay(duration / 2f);
                 tween.onComplete += () =>
                 {
+                    blockDimensionChangeCallback = true;
                     preset.ActiveTween = null;
                     preset.Page.gameObject.SetActive(false);
                     preset.Parent.gameObject.SetActive(false);
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
+                    blockDimensionChangeCallback = false;
                 };
                 tween.onUpdate += () =>
                 {
@@ -192,6 +220,20 @@ namespace SeroJob.UiSystem
                 };
 
                 preset.ActiveTween = tween;
+                blockDimensionChangeCallback = false;
+            }
+        }
+
+        public void OnRectTransformDimensionsChanged(RectTransform rectTransform)
+        {
+            if (blockDimensionChangeCallback || defaultPagePresets == null) return;
+
+            foreach (var preset in defaultPagePresets)
+            {
+                if (preset == null || preset.Parent != rectTransform) continue;
+
+                if (preset.Page.PageState == UIPageState.Opening) MovePageToOpen(preset.Page, preset);
+                else if (preset.Page.PageState == UIPageState.Closing) MovePageToClose(preset.Page, preset);
             }
         }
 
@@ -254,6 +296,22 @@ namespace SeroJob.UiSystem
         {
             layout = GetComponentInChildren<VerticalLayoutGroup>();
             UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+
+
+        public UIPage TargetEditorPage;
+
+        [NaughtyAttributes.Button()]
+        public void TestOpenPage()
+        {
+            OpenLayoutPage(TargetEditorPage);
+        }
+
+        [NaughtyAttributes.Button()]
+        public void TestClosePage()
+        {
+            CloseLayoutPage(TargetEditorPage);
         }
 #endif
     }
