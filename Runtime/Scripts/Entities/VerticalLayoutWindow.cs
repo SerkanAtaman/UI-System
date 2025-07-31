@@ -13,8 +13,6 @@ namespace SeroJob.UiSystem
 
         protected VerticalLayoutPagePreset[] defaultPagePresets;
 
-        public UIPage TargetEditorPage;
-
         protected override void Awake()
         {
             base.Awake();
@@ -251,18 +249,6 @@ namespace SeroJob.UiSystem
         {
             layout = GetComponentInChildren<VerticalLayoutGroup>();
             UnityEditor.EditorUtility.SetDirty(this);
-        }
-
-        [NaughtyAttributes.Button()]
-        public void TestOpenPage()
-        {
-            OpenLayoutPage(TargetEditorPage);
-        }
-
-        [NaughtyAttributes.Button()]
-        public void TestClosePage()
-        {
-            CloseLayoutPage(TargetEditorPage);
         }
 #endif
     }
