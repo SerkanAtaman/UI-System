@@ -231,11 +231,11 @@ namespace SeroJob.UiSystem
         protected virtual void OnOpenEnded() { }
         protected virtual void OnHideStarted() { }
         protected virtual void OnHideEnded() { }
-        internal virtual void OnWindowAwaken(UIWindow window) { }
-        internal virtual void OnWindowOpenStarted(UIWindow window) { }
-        internal virtual void OnWindowOpenEnded(UIWindow window) { }
-        internal virtual void OnWindowCloseStarted(UIWindow window) { }
-        internal virtual void OnWindowCloseEnded(UIWindow window) { }
+        internal protected virtual void OnWindowAwaken(UIWindow window) { }
+        internal protected virtual void OnWindowOpenStarted(UIWindow window) { }
+        internal protected virtual void OnWindowOpenEnded(UIWindow window) { }
+        internal protected virtual void OnWindowCloseStarted(UIWindow window) { }
+        internal protected virtual void OnWindowCloseEnded(UIWindow window) { }
 
         protected void SetPageState(UIPageState state)
         {
