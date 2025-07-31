@@ -146,7 +146,7 @@ namespace SeroJob.UiSystem
                 blockDimensionChangeCallback = true;
                 if (!page.gameObject.activeSelf)
                     page.gameObject.SetActive(true);
-                page.Open();
+                page.Open(() => StartCoroutine(DelayLayoutRefresh()));
                 preset.Parent.sizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
                 preset.ActiveTween = null;
 
@@ -165,10 +165,9 @@ namespace SeroJob.UiSystem
                 {
                     preset.ActiveTween = null;
                     if (!page.gameObject.activeSelf) page.gameObject.SetActive(true);
-                    page.Open();
+                    page.Open(() => StartCoroutine(DelayLayoutRefresh()));
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
                     blockDimensionChangeCallback = false;
-                    StartCoroutine(DelayLayoutRefresh());
                 };
 
                 preset.ActiveTween = expandTween;
@@ -214,12 +213,13 @@ namespace SeroJob.UiSystem
                     preset.Parent.gameObject.SetActive(false);
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
                     blockDimensionChangeCallback = false;
+                    StartCoroutine(DelayLayoutRefresh());
                 });
             }
             else
             {
                 blockDimensionChangeCallback = true;
-                page.Close();
+                page.Close(() => StartCoroutine(DelayLayoutRefresh()));
 
                 var duration = page.CloseAnim.GetMaxDuration();
                 var tween = preset.Parent.DOSizeDelta(targetSizeDelta, duration).SetDelay(duration / 2f);
@@ -312,7 +312,6 @@ namespace SeroJob.UiSystem
 
         private System.Collections.IEnumerator DelayLayoutRefresh()
         {
-            yield return null;
             yield return null;
 
             LayoutRebuilder.MarkLayoutForRebuild((RectTransform)layout.transform);
