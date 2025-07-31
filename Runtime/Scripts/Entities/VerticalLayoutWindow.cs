@@ -50,6 +50,7 @@ namespace SeroJob.UiSystem
             {
                 foreach (var page in pages)
                 {
+                    page.OnWindowCloseEnded(this);
                     var preset = GetPresetFor(page);
                     if (preset != null && preset.Parent != null)
                     {
@@ -73,6 +74,14 @@ namespace SeroJob.UiSystem
             remainingPagesToAnimate = 0;
             UIData.OnWindowOpened.Invoke(this);
 
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowOpenEnded(this);
+                }
+            }
+
             callback?.Invoke();
         }
 
@@ -86,6 +95,14 @@ namespace SeroJob.UiSystem
             onWindowAnimatedCallback = null;
             remainingPagesToAnimate = 0;
             UIData.OnWindowOpened.Invoke(this);
+
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowOpenEnded(this);
+                }
+            }
         }
 
         public void OpenLayoutPage(UIPage page)
@@ -151,6 +168,7 @@ namespace SeroJob.UiSystem
                     page.Open();
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
                     blockDimensionChangeCallback = false;
+                    StartCoroutine(DelayLayoutRefresh());
                 };
 
                 preset.ActiveTween = expandTween;
@@ -213,6 +231,7 @@ namespace SeroJob.UiSystem
                     preset.Parent.gameObject.SetActive(false);
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
                     blockDimensionChangeCallback = false;
+                    StartCoroutine(DelayLayoutRefresh());
                 };
                 tween.onUpdate += () =>
                 {
@@ -291,27 +310,20 @@ namespace SeroJob.UiSystem
             return false;
         }
 
+        private System.Collections.IEnumerator DelayLayoutRefresh()
+        {
+            yield return null;
+            yield return null;
+
+            LayoutRebuilder.MarkLayoutForRebuild((RectTransform)layout.transform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
+        }
+
 #if UNITY_EDITOR
         private void Reset()
         {
             layout = GetComponentInChildren<VerticalLayoutGroup>();
             UnityEditor.EditorUtility.SetDirty(this);
-        }
-
-
-
-        public UIPage TargetEditorPage;
-
-        [NaughtyAttributes.Button()]
-        public void TestOpenPage()
-        {
-            OpenLayoutPage(TargetEditorPage);
-        }
-
-        [NaughtyAttributes.Button()]
-        public void TestClosePage()
-        {
-            CloseLayoutPage(TargetEditorPage);
         }
 #endif
     }

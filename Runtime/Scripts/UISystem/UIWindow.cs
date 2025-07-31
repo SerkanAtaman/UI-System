@@ -98,6 +98,14 @@ namespace SeroJob.UiSystem
             windowState = UIWindowState.Opened;
             if (transform.TryGetComponent(out GraphicRaycaster raycaster))
                 GraphicRaycaster = raycaster;
+
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowAwaken(this);
+                }
+            }
         }
 
         #endregion
@@ -256,22 +264,46 @@ namespace SeroJob.UiSystem
 
         protected virtual void WindowOpenStarted()
         {
-            
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowOpenStarted(this);
+                }
+            }
         }
         
         protected virtual void WindowOpenEnded()
         {
-            
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowOpenEnded(this);
+                }
+            }
         }
         
         protected virtual void WindowCloseStarted()
         {
-            
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowCloseStarted(this);
+                }
+            }
         }
         
         protected virtual void WindowCloseEnded()
         {
-            
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    if (page) page.OnWindowCloseEnded(this);
+                }
+            }
         }
 
         #endregion
