@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -142,6 +143,52 @@ namespace SeroJob.UiSystem
                 if (window == null) continue;
                 if (window is IScaleableWindow scaleable) scaleable.SetScale(scale);
             }
+        }
+
+        public static Tween MoveAllPagesToHiddenPlacement(this UIWindow window, bool forceDeactivePages = false)
+        {
+            if (window == null || window.Pages == null) return null;
+
+            Sequence sequence = null;
+
+            foreach (var page in window.Pages)
+            {
+                if (page == null || page.CloseAnim == null) continue;
+                if (!page.gameObject.activeSelf && !forceDeactivePages) continue;
+
+                page.CloseAnim.Play();
+
+                if (page.CloseAnim.PlayingSequence != null)
+                {
+                    sequence ??= DOTween.Sequence();
+                    sequence.Join(page.CloseAnim.PlayingSequence);
+                }
+            }
+
+            return sequence.Play();
+        }
+
+        public static Tween MoveAllPagesToShownPlacement(this UIWindow window, bool forceDeactivePages = false)
+        {
+            if (window == null || window.Pages == null) return null;
+
+            Sequence sequence = null;
+
+            foreach (var page in window.Pages)
+            {
+                if (page == null || page.OpenAnim == null) continue;
+                if (!page.gameObject.activeSelf && !forceDeactivePages) continue;
+
+                page.OpenAnim.Play();
+
+                if (page.OpenAnim.PlayingSequence != null)
+                {
+                    sequence ??= DOTween.Sequence();
+                    sequence.Join(page.OpenAnim.PlayingSequence);
+                }
+            }
+
+            return sequence.Play();
         }
     }
 }

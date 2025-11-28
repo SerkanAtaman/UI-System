@@ -28,6 +28,7 @@ namespace SeroJob.UiSystem
 
         public UIWindowState State => windowState;
         public FlowController CurrentFlowController => currentFlowController;
+        public UIPage[] Pages => pages;
         
         public GraphicRaycaster GraphicRaycaster { get; private set; }
 
