@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+
+#if SEROJOB_EDITOR_ADDRESSABLES
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+#endif
 
 namespace SeroJob.UiSystem.Editor
 {
@@ -35,13 +38,16 @@ namespace SeroJob.UiSystem.Editor
                 result = AssetDatabase.LoadAssetAtPath<UISettings>(AssetDatabase.GUIDToAssetPath(settingsGuids[0]));
             }
 
+#if SEROJOB_EDITOR_ADDRESSABLES
             if (result != null) AssignSettingsAssetToAddressables(result);
+#endif
 
             return result;
         }
 
         public static UISettings CreateSettingsAsset()
         {
+#if SEROJOB_EDITOR_ADDRESSABLES
             var path = "Assets/Serojob-UI-System/UISettings.asset";
             var settings = ScriptableObject.CreateInstance<UISettings>();
             var directory = Path.GetDirectoryName(path);
@@ -55,8 +61,24 @@ namespace SeroJob.UiSystem.Editor
             Debug.Log("Created UISettings asset at: " + path);
 
             return settings;
+#else
+            var path = "Assets/Resources/Serojob-UI-System/UISettings.asset";
+            var settings = ScriptableObject.CreateInstance<UISettings>();
+            var directory = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
+            AssetDatabase.CreateAsset(settings, path);
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssetIfDirty(settings);
+
+            Debug.Log("Created UISettings asset at: " + path);
+
+            return settings;
+#endif
         }
 
+#if SEROJOB_EDITOR_ADDRESSABLES
         public static void AssignSettingsAssetToAddressables(UISettings settings)
         {
             var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
@@ -104,5 +126,6 @@ namespace SeroJob.UiSystem.Editor
             EditorUtility.SetDirty(addressableEntry.parentGroup.Settings);
             AssetDatabase.SaveAssetIfDirty(addressableEntry.parentGroup);
         }
+#endif
     }
 }

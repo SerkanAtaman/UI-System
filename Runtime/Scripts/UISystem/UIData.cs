@@ -51,7 +51,7 @@ namespace SeroJob.UiSystem
             IsInitializing = true;
             UISettings = null;
 
-            StartGetSettingsTask();
+            SetUISettingsReference();
 
             while (UISettings == null)
             {
@@ -86,6 +86,16 @@ namespace SeroJob.UiSystem
             return null;
         }
 
+        public static void SetUISettingsReference()
+        {
+#if SEROJOB_ADDRESSABLES
+            StartGetSettingsTask();
+#else
+            UISettings = Resources.Load<UISettings>("UISystem/SerojobUISystemSettings");
+#endif
+        }
+
+#if SEROJOB_ADDRESSABLES
         private static void StartGetSettingsTask()
         {
             UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UISettings>("SerojobUISystemSettings").Completed += OnGetSettingsCompleted;
@@ -95,6 +105,7 @@ namespace SeroJob.UiSystem
         {
             UISettings = obj.Result;
         }
+#endif
 
         #region EDITOR
 #if UNITY_EDITOR
@@ -122,6 +133,6 @@ namespace SeroJob.UiSystem
             return UnityEditor.AssetDatabase.LoadAssetAtPath<UISettings>(UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]));
         }
 #endif
-        #endregion
+#endregion
     }
 }
