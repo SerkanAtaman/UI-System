@@ -101,7 +101,7 @@ namespace SeroJob.UiSystem
             return array;
         }
 
-        public static void SetWindowVisibility(this FlowController flowController, bool isVisible, params string[] windowIDs)
+        public static void SetWindowVisibility(this FlowController flowController, bool isVisible, bool force = false, params string[] windowIDs)
         {
             if (flowController == null || windowIDs == null) return;
 
@@ -109,13 +109,13 @@ namespace SeroJob.UiSystem
             {
                 var window = flowController.GetWindowByID(windowID);
                 if (window == null) continue;
-                if (window.PreventBeingHidden && !isVisible) continue;
+                if (window.PreventBeingHidden && !isVisible && !force) continue;
 
                 window.IsVisible = isVisible;
             }
         }
 
-        public static void SetAllWindowVisibility(this FlowController flowController, bool isVisible)
+        public static void SetAllWindowVisibility(this FlowController flowController, bool isVisible, bool force = false)
         {
             if (flowController == null) return;
 
@@ -125,7 +125,7 @@ namespace SeroJob.UiSystem
             {
                 var window = flowController.WindowsCollection.ElementAt(i).Value;
                 if (window == null) continue;
-                if (window.PreventBeingHidden && !isVisible) continue;
+                if (window.PreventBeingHidden && !isVisible && !force) continue;
 
                 window.IsVisible = isVisible;
             }
