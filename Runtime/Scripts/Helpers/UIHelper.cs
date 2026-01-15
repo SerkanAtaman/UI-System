@@ -166,7 +166,7 @@ namespace SeroJob.UiSystem
                 }
             }
 
-            return sequence.Play();
+            return sequence;
         }
 
         public static Tween MoveAllPagesToShownPlacement(this UIWindow window, bool forceDeactivePages = false)
@@ -181,7 +181,7 @@ namespace SeroJob.UiSystem
                 if (page == null || page.OpenAnim == null) continue;
                 if (!page.gameObject.activeSelf && !forceDeactivePages) continue;
 
-                page.OpenAnim.Play();
+                page.Open();
 
                 if (page.OpenAnim.PlayingSequence != null)
                 {
@@ -190,7 +190,7 @@ namespace SeroJob.UiSystem
                 }
             }
 
-            return sequence.Play();
+            return sequence;
         }
     }
 }
