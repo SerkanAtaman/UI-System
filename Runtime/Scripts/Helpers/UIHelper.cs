@@ -149,6 +149,7 @@ namespace SeroJob.UiSystem
         {
             if (window == null || window.Pages == null) return null;
 
+            window.arePagesHidden = true;
             Sequence sequence = null;
 
             foreach (var page in window.Pages)
@@ -172,6 +173,7 @@ namespace SeroJob.UiSystem
         {
             if (window == null || window.Pages == null) return null;
 
+            window.arePagesHidden = false;
             Sequence sequence = null;
 
             foreach (var page in window.Pages)

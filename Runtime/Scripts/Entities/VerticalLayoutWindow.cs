@@ -144,9 +144,13 @@ namespace SeroJob.UiSystem
             if (!IsAnyNextPageOpen(page))
             {
                 blockDimensionChangeCallback = true;
+
                 if (!page.gameObject.activeSelf)
                     page.gameObject.SetActive(true);
-                page.Open();
+
+                if (!arePagesHidden)
+                    page.Open();
+
                 preset.Parent.sizeDelta = ((RectTransform)preset.Page.transform).sizeDelta;
                 preset.ActiveTween = null;
 
@@ -164,8 +168,13 @@ namespace SeroJob.UiSystem
                 expandTween.onComplete += () =>
                 {
                     preset.ActiveTween = null;
-                    if (!page.gameObject.activeSelf) page.gameObject.SetActive(true);
-                    page.Open();
+
+                    if (!page.gameObject.activeSelf)
+                        page.gameObject.SetActive(true);
+
+                    if (!arePagesHidden)
+                        page.Open();
+
                     LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout.transform);
                     blockDimensionChangeCallback = false;
                 };

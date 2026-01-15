@@ -89,6 +89,8 @@ namespace SeroJob.UiSystem
         private Canvas _canvas;
         private CanvasGroup _canvasGroup;
 
+        internal bool arePagesHidden = false;
+
         #endregion
 
         #region Unity Methods
