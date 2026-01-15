@@ -47,12 +47,15 @@ namespace SeroJob.UiSystem
 
         #region Public Methos
 
-        public virtual void Open(Action callback)
+        public virtual void Open(Action callback, bool force = false)
         {
             if (PageState == UIPageState.Opening || PageState == UIPageState.Opened)
             {
-                callback?.Invoke();
-                return;
+                if (!force)
+                {
+                    callback?.Invoke();
+                    return;
+                }
             }
 
             _pageActionCallback = callback;

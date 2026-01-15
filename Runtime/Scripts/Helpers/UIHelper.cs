@@ -181,7 +181,7 @@ namespace SeroJob.UiSystem
                 if (page == null || page.OpenAnim == null) continue;
                 if (!page.gameObject.activeSelf && !forceDeactivePages) continue;
 
-                page.Open();
+                page.Open(null, true);
 
                 if (page.OpenAnim.PlayingSequence != null)
                 {
