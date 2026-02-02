@@ -121,7 +121,7 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            if (page.PageState == UIPageState.Opening || page.PageState == UIPageState.Opened) return;
+            //if (page.PageState == UIPageState.Opening || page.PageState == UIPageState.Opened) return;
 
             if (State != UIWindowState.Opening && State != UIWindowState.Opened)
                 CurrentFlowController.OpenWindow(ID, null, true);
@@ -200,7 +200,7 @@ namespace SeroJob.UiSystem
                 return;
             }
 
-            if (page.PageState == UIPageState.Closing || page.PageState == UIPageState.Closed) return;
+            //if (page.PageState == UIPageState.Closing || page.PageState == UIPageState.Closed) return;
 
             MovePageToClose(page, preset);
         }
