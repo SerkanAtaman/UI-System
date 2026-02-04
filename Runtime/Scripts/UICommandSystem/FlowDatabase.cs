@@ -8,6 +8,7 @@ namespace SeroJob.UiSystem
     {
         [SerializeField, ReadOnly] private string _flowName;
         [SerializeField] private bool _hideAllWindows = false;
+        [SerializeField] private bool _disableAllWindows = false;
         [SerializeField, ReadOnly] private string[] _windowIDs;
 
         public string[] WindowIDs
@@ -37,9 +38,30 @@ namespace SeroJob.UiSystem
                 _hideAllWindows = value;
 
                 var flow = UIData.GetRegisteredFlowControllerByName(_flowName);
-                if (flow != null) flow.SetAllWindowVisibility(!_hideAllWindows);
+                if (flow != null)
+                {
+                    if(_disableAllWindows)flow.SetAllWindowVisibility(false);
+                    else flow.SetAllWindowVisibility(!_hideAllWindows);
+                }
             }
         }
+
+        public bool DisableAllWindows
+        {
+            get => _disableAllWindows;
+            set
+            {
+                _disableAllWindows = value;
+
+                var flow = UIData.GetRegisteredFlowControllerByName(_flowName);
+                if (flow != null)
+                {
+                    if(_disableAllWindows) flow.SetAllWindowVisibility(false, true);
+                    else flow.SetAllWindowVisibility(!_hideAllWindows);
+                }
+            }
+        }
+
 
         public ProtectedAction<UICommand> OnCommandGiven { get; private set; }
 
@@ -60,4 +82,5 @@ namespace SeroJob.UiSystem
         }
 #endif
     }
+
 }
