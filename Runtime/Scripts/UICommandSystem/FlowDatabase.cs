@@ -57,7 +57,11 @@ namespace SeroJob.UiSystem
                 if (flow != null)
                 {
                     if(_disableAllWindows) flow.SetAllWindowVisibility(false, true);
-                    else flow.SetAllWindowVisibility(!_hideAllWindows);
+                    else
+                    {
+                        flow.SetAllWindowVisibility(true, true);
+                        HideAllWindows = HideAllWindows;
+                    }
                 }
             }
         }
@@ -84,3 +88,4 @@ namespace SeroJob.UiSystem
     }
 
 }
+
