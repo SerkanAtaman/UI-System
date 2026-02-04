@@ -130,7 +130,9 @@ namespace SeroJob.UiSystem
         {
             if (!UIData.IsInitialized) UIData.EditorInit();
 
-            this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
+            //this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
+            _flowDatabase.HideAllWindows=_flowDatabase.HideAllWindows;
+            _flowDatabase.DisableAllWindows=_flowDatabase.DisableAllWindows;
 
             if (closeOthers)
             {
@@ -163,7 +165,9 @@ namespace SeroJob.UiSystem
         {
             if (!UIData.IsInitialized) await UIData.Init();
 
-            this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
+            //this.SetAllWindowVisibility(!_flowDatabase.HideAllWindows);
+            _flowDatabase.HideAllWindows=_flowDatabase.HideAllWindows;
+            _flowDatabase.DisableAllWindows=_flowDatabase.DisableAllWindows;
 
             if (closeOthers)
             {
@@ -378,4 +382,5 @@ namespace SeroJob.UiSystem
 #endif
 #endregion
     }
+
 }
