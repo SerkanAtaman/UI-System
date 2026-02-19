@@ -237,7 +237,7 @@ namespace SeroJob.UiSystem
             return FlowDatabase;
         }
 
-        public void SetScale(float scale)
+        public virtual void SetScale(float scale)
         {
             if (scalableElements == null) return;
 
