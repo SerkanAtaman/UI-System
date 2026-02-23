@@ -1,72 +1,10 @@
 using DG.Tweening;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SeroJob.UiSystem
 {
     public static class UIHelper
     {
-        public static List<UIWindow> GetConflictedWindows(UIWindow refWindow, List<UIWindow> openedWindows)
-        {
-            var result = new List<UIWindow>();
-
-            if (refWindow.CooperatedWindows.Contains("everything"))
-                return result;
-
-            foreach (var window in openedWindows)
-            {
-                if(window.CooperatedWindows.Contains("everything")) continue;
-                
-                if (!refWindow.CooperatedWindows.Contains(window.ID))
-                {
-                    result.Add(window);
-                }
-            }
-
-            return result;
-        }
-
-        public static List<UIWindow> GetConflictedWindows(UIWindow[] refWindows, List<UIWindow> openedWindows)
-        {
-            var result = new List<UIWindow>();
-
-            foreach (var window in openedWindows)
-            {
-                foreach (var window2 in refWindows)
-                {
-                    if(window2.CooperatedWindows.Contains("everything")) continue;
-                    
-                    if (!window2.CooperatedWindows.Contains(window.ID))
-                    {
-                        if(!result.Contains(window)) result.Add(window);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public static bool DoesWindowsConflict(UIWindow[] windows)
-        {
-            bool result = false;
-
-            for(int i = 0; i < windows.Length - 1; i++)
-            {
-                if (!windows[i] == windows[i + 1])
-                {
-                    continue;
-                }
-
-                if (!windows[i].CooperatedWindows.Contains(windows[i + 1].ID))
-                {
-                    result = true;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
         public static UIWindow FindWindowIn(UIWindow[] array, string id)
         {
             UIWindow result = null;

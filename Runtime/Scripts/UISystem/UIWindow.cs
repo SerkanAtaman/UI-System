@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using NaughtyAttributes;
 using UnityEngine.UI;
 
 namespace SeroJob.UiSystem
@@ -9,25 +8,25 @@ namespace SeroJob.UiSystem
     [RequireComponent(typeof(CanvasGroup))]
     public class UIWindow : MonoBehaviour, IFlowProvider, IScaleableWindow
     {
-        [SerializeField, ReadOnly] protected UIWindowState windowState = UIWindowState.Opened;
-        [SerializeField, ReadOnly] protected FlowController currentFlowController = null;
+        [SerializeField] private string _windowID;
+        [SerializeField] private FlowDatabase _flowDatabase;
 
-        [field:SerializeField] public string ID { get; private set; }
-        [field:SerializeField] public FlowDatabase FlowDatabase { get; private set; }
-
-        [SerializeField] [OnValueChanged("OnCollabratorWindowsChanged")] UIWindowReference[] _collaboratorWindows;
-
+        [SerializeField] protected UIWindowState windowState = UIWindowState.Opened;
+        [SerializeField] protected FlowController currentFlowController = null;
         [SerializeField] protected UIPage[] pages;
-
         [SerializeField] protected bool isScalable = false;
-        [SerializeField, ShowIf("isScalable")] protected ScalableWindowElement[] scalableElements;
+        [SerializeField] protected ScalableWindowElement[] scalableElements;
 
         public bool PreventBeingHidden = false;
+        public bool DeactivateOnClose = true;
+        public bool DisableCanvasOnClose = true;
 
         #region Property Getters
 
         public UIWindowState State => windowState;
         public FlowController CurrentFlowController => currentFlowController;
+        public string ID => _windowID;
+        public FlowDatabase FlowDatabase => _flowDatabase;
         public UIPage[] Pages => pages;
         
         public GraphicRaycaster GraphicRaycaster { get; private set; }
@@ -51,22 +50,6 @@ namespace SeroJob.UiSystem
 
         public int SortingOrder => Canvas.sortingOrder;
 
-        public string[] CooperatedWindows
-        {
-            get
-            {
-                if (_collaboratorWindows == null || _collaboratorWindows.Length == 0) return null;
-
-                string[] array = new string[_collaboratorWindows.Length];
-
-                for(int i = 0;  i < _collaboratorWindows.Length; i++)
-                {
-                    array[i] = _collaboratorWindows[i].WindowID;
-                }
-
-                return array;
-            }
-        }
         public virtual bool IsVisible
         {
             get
@@ -119,7 +102,7 @@ namespace SeroJob.UiSystem
         {
             if (State == UIWindowState.Opened || State == UIWindowState.Opening) return;
 
-            gameObject.SetActive(true);
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
             Canvas.enabled = true;
             windowState = UIWindowState.Opening;
             onWindowAnimatedCallback = callback;
@@ -193,8 +176,8 @@ namespace SeroJob.UiSystem
         public virtual void OpenImmediately()
         {
             windowState = UIWindowState.Opening;
-            
-            gameObject.SetActive(true);
+
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
             Canvas.enabled = true;
 
             remainingPagesToAnimate = pages.Length;
@@ -346,9 +329,9 @@ namespace SeroJob.UiSystem
                 windowState = UIWindowState.Closed;
                 
                 WindowCloseEnded();
-                
-                gameObject.SetActive(false);
-                Canvas.enabled = false;
+
+                if (DeactivateOnClose) gameObject.SetActive(false);
+                if (DisableCanvasOnClose) Canvas.enabled = false;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
                 var callback = onWindowAnimatedCallback;
@@ -368,8 +351,8 @@ namespace SeroJob.UiSystem
 
                 WindowCloseEnded();
 
-                gameObject.SetActive(false);
-                Canvas.enabled = false;
+                if (DeactivateOnClose) gameObject.SetActive(false);
+                if (DisableCanvasOnClose) Canvas.enabled = false;
                 if (GraphicRaycaster != null) GraphicRaycaster.enabled = false;
 
                 var callback = onWindowAnimatedCallback;
@@ -397,72 +380,6 @@ namespace SeroJob.UiSystem
             }
         }
 
-        #endregion
-
-        #region Editor Methods
-#if UNITY_EDITOR
-        protected virtual void OnValidate()
-        {
-            if (!isScalable)
-            {
-                scalableElements = null;
-                UnityEditor.EditorUtility.SetDirty(this);
-            }
-        }
-
-        private void OnCollabratorWindowsChanged()
-        {
-            UnityEditor.EditorApplication.delayCall += CheckNewCollabrators;
-        }
-
-        private void CheckNewCollabrators()
-        {
-            var collabrators = CooperatedWindows;
-            if (collabrators.Contains(ID))
-            {
-                UIWindowReference item = null;
-
-                foreach (var window in _collaboratorWindows)
-                {
-                    if (window.WindowID == ID)
-                    {
-                        item = window;
-                        break;
-                    }
-                }
-
-                _collaboratorWindows = _collaboratorWindows.Remove(item);
-            }
-        }
-
-        [ContextMenu("Close")]
-        private void HideFromEditor()
-        {
-            if (!Application.isPlaying)
-            {
-                gameObject.SetActive(false);
-                Canvas.enabled = false;
-                windowState = UIWindowState.Closed;
-                return;
-            }
-
-            HideImmediately();
-        }
-
-        [ContextMenu("Open")]
-        private void OpenFromEditor()
-        {
-            if (!Application.isPlaying)
-            {
-                gameObject.SetActive(true);
-                Canvas.enabled = true;
-                windowState = UIWindowState.Opened;
-                return;
-            }
-
-            OpenImmediately();
-        }
-#endif
         #endregion
     }
 }
